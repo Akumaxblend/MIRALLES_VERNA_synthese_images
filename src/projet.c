@@ -4,12 +4,21 @@
 #include <GL/glu.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include "primitives.h"
 
 /* Window properties */
 static const unsigned int WINDOW_WIDTH = 800;
 static const unsigned int WINDOW_HEIGHT = 600;
 static const char WINDOW_TITLE[] = "Corridor Light";
 static float aspectRatio = 1.0;
+
+/*Variables definition*/
+
+double RacketX = 0;
+double RacketY = 0;
+
+int effectiveWidth = WINDOW_WIDTH;
+int effectiveHeight = WINDOW_HEIGHT;
 
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
@@ -26,7 +35,7 @@ void onError(int error, const char* description)
 
 void onWindowResized(GLFWwindow* window, int width, int height)
 {
-	aspectRatio = width / (float) height;
+	aspectRatio = (float) width / (float) height;
 
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
@@ -45,6 +54,8 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 		-GL_VIEW_SIZE / 2. / aspectRatio, GL_VIEW_SIZE / 2. / aspectRatio);
 	}
 	glMatrixMode(GL_MODELVIEW);
+	effectiveWidth = width;
+	effectiveHeight = height;
 
 }
 
@@ -53,6 +64,18 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	if (key == GLFW_KEY_A && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
+}
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	glfwGetCursorPos(window, &RacketX, &RacketY);
+
+	*&RacketX /= WINDOW_WIDTH/2;	//Conversion adéquate pour le repère affichage
+	*&RacketX -= 1;
+	*&RacketX *= aspectRatio;
+
+	*&RacketY /= WINDOW_HEIGHT/2;	//Conversion adéquate pour le repère affichage
+	*&RacketY -= 1;
+	*&RacketY *= -1;
 }
 
 int main(int argc, char** argv) 
@@ -78,6 +101,8 @@ int main(int argc, char** argv)
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
+		glfwSetCursorPosCallback(window, cursor_position_callback);
+
 
 	onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
@@ -91,6 +116,7 @@ int main(int argc, char** argv)
 
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
+		drawRacket(0.1,0.1, RacketX, RacketY);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

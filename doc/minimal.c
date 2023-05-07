@@ -11,6 +11,7 @@ static const unsigned int WINDOW_HEIGHT = 600;
 static const char WINDOW_TITLE[] = "TD02 Ex01";
 static float aspectRatio = 1.0;
 
+
 /* Minimal time wanted between two images */
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
@@ -55,6 +56,7 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
+
 int main(int argc, char** argv) 
 {
 	/* GLFW initialisation */
@@ -78,7 +80,6 @@ int main(int argc, char** argv)
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
-
 	onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
 	glPointSize(4.0);

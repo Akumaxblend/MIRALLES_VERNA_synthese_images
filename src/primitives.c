@@ -79,7 +79,7 @@ void initSectionsTab(SectionsTab * st, int sectionNumber){
 	for(int i = 0 ; i < sectionNumber ; i ++){
 
 		Section tmp;
-		initSection(&tmp, 15, 10, 15, 30 - 15 * i);
+		initSection(&tmp, 10, 5, 15, 30 - 15 * i);
 		st->tab[i] = tmp;
 	}
 }
@@ -128,14 +128,21 @@ void drawBall(Ball b){
 
 }
 
-void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim){
+void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim, float zlim){
 
 	b->x += dx;
 	b->y += dy;
 	b->z += dz;
 
-	if(b->vx >0 && b->x > xlim) b->vx *= -1;
-	if(b->vx <0 && b->x < -xlim) b->vx *= -1;
+	if(b->vx >0 && b->x +b->radius > xlim) b->vx *= -1;
+	if(b->vx <0 && b->x - b->radius < -xlim) b->vx *= -1;
+
+	if(b->vy > 0 && b->y + b->radius > ylim) b->vy *= -1;
+	if(b->vy < 0 && b->y -b->radius < -ylim) b->vy *= -1;
+
+	//if(b->vz > 0 && b->z + b->radius > zlim) b->vz *= -1;
+	if(b->vz < 0 && b->z -b->radius < -zlim) b->vz *= -1;
+
 }
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z){
@@ -160,5 +167,18 @@ void translateRacket(Racket * r, float dz, float * extRacketPosition){
 
 	*extRacketPosition = 30 - r->racketz;
 }
+
+void racketCollision(Racket r, Ball * b){
+
+	if(b->vz > 0 && b->z + b->radius > r.racketz){
+
+		if(b->x > (r.racketx - r.width/2) && b->x < (r.racketx + r.width / 2) && b->y > (r.rackety - r.height/2) && b->y < (r.rackety + r.height/2)){
+
+			b->vz *= -1;
+		}
+	}
+}
+
+
 
 

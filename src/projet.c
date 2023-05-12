@@ -11,9 +11,9 @@
 
 
 /* Window properties */
-static unsigned int WINDOW_WIDTH = 1000;
+static unsigned int WINDOW_WIDTH = 1800;
 static unsigned int WINDOW_HEIGHT = 1000;
-static const char WINDOW_TITLE[] = "TD04 Ex01";
+static const char WINDOW_TITLE[] = "Super projet Mirale Vernat";
 static float aspectRatio = 1.0;
 
 /* Minimal time wanted between two images */
@@ -129,6 +129,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		}
     }
 	else movingRacket = -1;
+
 }
 
 int main(int argc, char** argv)
@@ -176,7 +177,7 @@ int main(int argc, char** argv)
 	//initialisation de la balle
 
 	Ball ball;
-	initBall(&ball, 0, 0, 10, 10, 0, -10, 0.25);
+	initBall(&ball, 0, 0, 0, 1, 1, -10, 0.25);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -221,13 +222,14 @@ int main(int argc, char** argv)
 		/* If to few time is spend vs our wanted FPS, we wait */
 		if(elapsedTime < FRAMERATE_IN_SECONDS)
 		{
-			glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS-elapsedTime);
+			//glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS-elapsedTime);
 		}
 
 		/* Animate scenery */
 
 		translateSections(&sections, animTime * speed);
-		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 7.5, 7.5);
+		racketCollision(racket, &ball);
+		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 15);
 		translateRacket(&racket, -movingRacket * speed, &racketDist);
 	}
 

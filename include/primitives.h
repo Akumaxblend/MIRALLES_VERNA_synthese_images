@@ -60,10 +60,12 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 
 void drawBall(Ball b);
 
-void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim);
+void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim, float zlim);
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z);
 
 void translateRacket(Racket * r, float dz, float * extRacketPosition);
+
+void racketCollision(Racket r, Ball * b);
 
 #endif

@@ -159,8 +159,8 @@
 
 
 /* Window properties */
-static const unsigned int WINDOW_WIDTH = 1000;
-static const unsigned int WINDOW_HEIGHT = 1000;
+static unsigned int WINDOW_WIDTH = 1000;
+static unsigned int WINDOW_HEIGHT = 1000;
 static const char WINDOW_TITLE[] = "TD04 Ex01";
 static float aspectRatio = 1.0;
 
@@ -175,6 +175,11 @@ float animTime = 1;
 
 double RacketX = 0;
 double RacketY = 0;
+int fov = 60;
+float racketDist = 5;
+int sectionNumber = 5;
+
+static const float GL_VIEW_SIZE = 2.;
 
 /* Error handling function */
 void onError(int error, const char* description)
@@ -186,12 +191,16 @@ void onWindowResized(GLFWwindow* window, int width, int height)
 {
 	aspectRatio = width / (float) height;
 
+	WINDOW_WIDTH = width;
+	WINDOW_HEIGHT = height;
+
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60.0,aspectRatio,Z_NEAR,Z_FAR);
+	gluPerspective(fov,aspectRatio,Z_NEAR,Z_FAR);
 	glMatrixMode(GL_MODELVIEW);
 }
+
 
 void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
@@ -240,10 +249,25 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 	}
 }
 
+static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	glfwGetCursorPos(window, &RacketX, &RacketY);
+
+	 if (aspectRatio < 1) { //Conversion adéquate pour le repère affichage
+            RacketX = (GL_VIEW_SIZE*RacketX/(float)WINDOW_WIDTH - GL_VIEW_SIZE/2)*(racketDist*tan(toRad(fov)/2.0));
+			RacketY = ((GL_VIEW_SIZE/2 - GL_VIEW_SIZE*RacketY/(float)WINDOW_HEIGHT)/aspectRatio)*(racketDist*tan(toRad(fov)/2.0));            
+        } 
+        else {
+            RacketX = ((GL_VIEW_SIZE*RacketX/(float)WINDOW_WIDTH - GL_VIEW_SIZE/2)*aspectRatio)*(racketDist*tan(toRad(fov)/2.0));
+			RacketY = (GL_VIEW_SIZE/2 - GL_VIEW_SIZE*RacketY/(float)WINDOW_HEIGHT)*(racketDist*tan(toRad(fov)/2.0));
+            
+        }
+
+}
+
 int main(int argc, char** argv)
 {
 	/* GLFW initialisation */
-	int angle = 30;
 
 	GLFWwindow* window;
 	if (!glfwInit()) return -1;
@@ -265,11 +289,16 @@ int main(int argc, char** argv)
 
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
+	glfwSetCursorPosCallback(window, cursor_position_callback);
 
 	onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
 
 	glPointSize(5.0);
 	glEnable(GL_DEPTH_TEST);
+
+	//initialisation des sections
+
+	
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -285,12 +314,14 @@ int main(int argc, char** argv)
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		setCamera();	
-		 
 
 		/* Scene rendering */
 
 		drawOrigin();
-		drawSection(15.0,10.0,15.0,30);
+		drawRacket(1,1,RacketX, RacketY, 30-racketDist);
+		
+		
+		drawSphere();
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -303,7 +334,6 @@ int main(int argc, char** argv)
 		double elapsedTime = glfwGetTime() - startTime;
 
 		animTime += elapsedTime * flag_animate_rot_arm;
-		printf ("%f \n",animTime);
 		/* If to few time is spend vs our wanted FPS, we wait */
 		if(elapsedTime < FRAMERATE_IN_SECONDS)
 		{

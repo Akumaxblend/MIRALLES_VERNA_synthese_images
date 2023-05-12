@@ -1,7 +1,7 @@
 #include "3D_tools.h"
 
 /* Camera parameters and functions */
-float theta = 0.0f; // Angle between x axis and viewpoint
+float theta = -90.0f; // Angle between x axis and viewpoint
 float phy = 0.1f; // Angle between z axis and viewpoint
 float dist_zoom = 30.0f; // Distance between origin and viewpoint
 

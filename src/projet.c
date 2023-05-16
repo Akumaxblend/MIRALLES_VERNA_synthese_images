@@ -179,6 +179,11 @@ int main(int argc, char** argv)
 	Ball ball;
 	initBall(&ball, 0, 0, 0, 1, 1, -10, 0.25);
 
+	//tests sur obstacles 
+
+	Obstacle obs;
+	initObstacle(&obs, 15.0, 10.0, 5.0);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
 	{
@@ -204,6 +209,7 @@ int main(int argc, char** argv)
 		drawOrigin();
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
 		drawSections(sections);
+		drawObstacle(obs);
 		
 		drawBall(ball);	
 

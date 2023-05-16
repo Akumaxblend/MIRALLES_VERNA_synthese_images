@@ -43,6 +43,19 @@ typedef struct str_racket{
 
 }Racket;
 
+typedef struct str_obstacle{
+
+    float width;
+    float height;
+
+    float vz;
+
+    float x;
+    float y;
+    float z;
+
+}Obstacle;
+
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 
@@ -67,5 +80,9 @@ void initRacket(Racket * r, float w, float h, float x, float y, float z);
 void translateRacket(Racket * r, float dz, float * extRacketPosition);
 
 void racketCollision(Racket r, Ball * b);
+
+void initObstacle(Obstacle * o,float position, float xlim, float ylim);
+
+void drawObstacle(Obstacle o);
 
 #endif

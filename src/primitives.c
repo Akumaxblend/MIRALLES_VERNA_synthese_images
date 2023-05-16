@@ -4,6 +4,7 @@
 #include <GL/glu.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "primitives.h"
 #include "3D_tools.h"
 
@@ -179,6 +180,29 @@ void racketCollision(Racket r, Ball * b){
 	}
 }
 
+void initObstacle(Obstacle * o, float position, float xlim, float ylim){
+
+	o->height = (float)rand()/(float)(RAND_MAX/(xlim/4)) + ylim/4.0;
+	o->width = (float)rand()/(float)(RAND_MAX/(ylim/4)) + xlim/4.0;
+
+	printf("%f - %f", o->height, o->width);
+
+	o->x =(float)rand()/(float)(RAND_MAX/(xlim-o->width)) + o->width/2.0;
+	o->y = (float)rand()/(float)(RAND_MAX/(ylim-o->height)) + o->height/2.0;
+
+	o->z = position;
+}
+
+void drawObstacle(Obstacle o){
+
+	glColor3f(0.1,0.1,0.1);
+    glBegin(GL_POLYGON);
+		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
+		glVertex3f(o.x + o.width/2, o.y - o.height/2, o.z);
+		glVertex3f(o.x + o.width/2, o.y + o.height/2, o.z);
+		glVertex3f(o.x - o.width/2, o.y + o.height/2, o.z);
+	glEnd();
+}
 
 
 

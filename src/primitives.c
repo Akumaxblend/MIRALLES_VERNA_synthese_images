@@ -7,6 +7,7 @@
 #include <math.h>
 #include "primitives.h"
 #include "3D_tools.h"
+#include <time.h>
 
 
 void drawRacket(float width, float height, double RacketX, double RacketY, float d){
@@ -173,7 +174,7 @@ void racketCollision(Racket r, Ball * b){
 
 	if(b->vz > 0 && b->z + b->radius > r.racketz){
 
-		if(b->x > (r.racketx - r.width/2) && b->x < (r.racketx + r.width / 2) && b->y > (r.rackety - r.height/2) && b->y < (r.rackety + r.height/2)){
+		if(b->x + b->radius > (r.racketx - r.width/2) && b->x - b->radius < (r.racketx + r.width / 2) && b->y + b->radius > (r.rackety - r.height/2) && b->y - b->radius < (r.rackety + r.height/2)){
 
 			b->vz *= -1;
 		}
@@ -182,26 +183,89 @@ void racketCollision(Racket r, Ball * b){
 
 void initObstacle(Obstacle * o, float position, float xlim, float ylim){
 
-	o->height = (float)rand()/(float)(RAND_MAX/(xlim/4)) + ylim/4.0;
-	o->width = (float)rand()/(float)(RAND_MAX/(ylim/4)) + xlim/4.0;
+	o->height = (float)rand()/(float)(RAND_MAX/(xlim/4.0)) + ylim/4.0;
+	o->width = (float)rand()/(float)(RAND_MAX/(ylim/4.0)) + xlim/4.0;
 
-	printf("%f - %f", o->height, o->width);
-
-	o->x =(float)rand()/(float)(RAND_MAX/(xlim-o->width)) + o->width/2.0;
-	o->y = (float)rand()/(float)(RAND_MAX/(ylim-o->height)) + o->height/2.0;
+	o->x =(float)rand()/(float)(RAND_MAX/(xlim - o->width/2.0)) - xlim/2 + o->width/2.0;
+	o->y = (float)rand()/(float)(RAND_MAX/(ylim - o->height/2.0)) - ylim/2 + o->height/2.0;
 
 	o->z = position;
 }
 
 void drawObstacle(Obstacle o){
 
-	glColor3f(0.1,0.1,0.1);
+	//glDepthMask(false);
+	glColor4f(0.1,0.1,0.8,0.5);
     glBegin(GL_POLYGON);
 		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
 		glVertex3f(o.x + o.width/2, o.y - o.height/2, o.z);
 		glVertex3f(o.x + o.width/2, o.y + o.height/2, o.z);
 		glVertex3f(o.x - o.width/2, o.y + o.height/2, o.z);
 	glEnd();
+	//glDepthMask(true);
+}
+
+void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float ylim){
+
+	ot->nb = nb;
+	for(int i = 0; i <nb; i++){
+
+		Obstacle tmp;
+		ot->tab[i] = tmp;
+		initObstacle(&(ot->tab[i]), origin - i * 15, xlim, ylim);
+	}
+}
+
+void drawObstacles(ObstaclesTab ot){
+
+	for(int i = ot.nb-1; i>=0 ; i--){ //On dessine en décrémentant pour garder la transparence comme il faut
+
+		drawObstacle(ot.tab[i]);
+	}
+}
+
+void translateObstacle(Obstacle * o, float dz){
+
+	o->z += dz;
+}
+
+void translateObstacles(ObstaclesTab * ot, float dz){
+
+	for(int i = 0; i<ot->nb; i++){
+
+		if(ot->tab[i].z < 25){ //On translate si l'obstacle n'a pas atteint la camera
+
+			translateObstacle(&(ot->tab[i]), dz);
+		}
+
+		else{
+
+			for(int i = 0; i< ot->nb - 1; i++){
+
+				ot->tab[i] = ot->tab[i+1];
+			}
+
+			Obstacle tmp;
+
+			initObstacle(&tmp, 15 - ot->nb * 15, 10, 5);
+			ot->tab[ot->nb-1] = tmp;
+		}
+	}
+}
+
+void obstaclesCollision(Ball * b, ObstaclesTab ot){
+
+	for(int i = 0 ; i < ot.nb ; i++){
+
+		if(b->vz < 0 && b->z < ot.tab[i].z){
+
+			if((b->x + b->radius > ot.tab[i].x - ot.tab[i].width/2) && (b->x - b->radius < ot.tab[i].x + ot.tab[i].width/2) && (b->y + b->radius > ot.tab[i].y - ot.tab[i].height/2) && (b->y - b->radius < ot.tab[i].y + ot.tab[i].height/2)){
+
+				b->vz *= -1;
+				break;
+			}
+		}
+	}
 }
 
 

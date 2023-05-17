@@ -5,14 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <time.h>
 #include "primitives.h"
 #include "3D_tools.h"
 #include "draw_scene.h"
 
 
 /* Window properties */
-static unsigned int WINDOW_WIDTH = 1800;
-static unsigned int WINDOW_HEIGHT = 1000;
+static unsigned int WINDOW_WIDTH = 900;
+static unsigned int WINDOW_HEIGHT = 500;
 static const char WINDOW_TITLE[] = "Super projet Mirale Vernat";
 static float aspectRatio = 1.0;
 
@@ -30,7 +31,7 @@ double RacketY = 0;
 int fov = 60;
 float racketDist = 5;
 int sectionNumber = 10;
-float speed = 1;
+float speed = 0.03;
 float racketSpeed = 1;
 int movingRacket = -1;
 
@@ -164,6 +165,10 @@ int main(int argc, char** argv)
 	glPointSize(5.0);
 	glEnable(GL_DEPTH_TEST);
 
+	//Random seed initialisation
+
+	srand(time(NULL));
+
 	//initialisation des sections
 
 	SectionsTab sections;
@@ -172,17 +177,21 @@ int main(int argc, char** argv)
 	//initialisation de la raquette 
 
 	Racket racket;
-	initRacket(&racket, 1, 1, RacketX, RacketY, 30-racketDist);
+	initRacket(&racket, 3, 3, RacketX, RacketY, 30-racketDist);
 
 	//initialisation de la balle
 
 	Ball ball;
-	initBall(&ball, 0, 0, 0, 1, 1, -10, 0.25);
+	initBall(&ball, 0, 0, 0, 1, 1, -20, 0.25);
 
 	//tests sur obstacles 
 
-	Obstacle obs;
-	initObstacle(&obs, 15.0, 10.0, 5.0);
+	// Obstacle obs;
+	// initObstacle(&obs, 15.0, 10.0, 5.0);
+
+	ObstaclesTab ot;
+	initObstaclesTab(&ot, 10, 15, 10, 5);
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -200,6 +209,9 @@ int main(int argc, char** argv)
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		glEnable (GL_BLEND); 
+   	 	glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		setCamera();	
@@ -209,9 +221,10 @@ int main(int argc, char** argv)
 		drawOrigin();
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
 		drawSections(sections);
-		drawObstacle(obs);
-		
 		drawBall(ball);	
+		drawObstacles(ot);
+		
+		
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -234,9 +247,11 @@ int main(int argc, char** argv)
 		/* Animate scenery */
 
 		translateSections(&sections, animTime * speed);
+		obstaclesCollision(&ball, ot);
 		racketCollision(racket, &ball);
-		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 15);
+		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 50);
 		translateRacket(&racket, -movingRacket * speed, &racketDist);
+		translateObstacles(&ot, animTime*speed);
 	}
 
 	glfwTerminate();

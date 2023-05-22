@@ -9,6 +9,18 @@
 #include "3D_tools.h"
 #include <time.h>
 
+float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2){
+
+	return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2) + (z1-z2)*(z1-z2));
+}
+
+float illuminationFactor(Ball b, Racket r, float x, float y, float z){
+
+	float distance1 = calculateDist(b.x, b.y, b.z, x, y, z);
+	float distance2 = calculateDist(r.racketx, r.rackety, r.racketz, x, y, z);
+
+	return 1/distance1 + 1/distance2;
+}
 
 void drawRacket(float width, float height, double RacketX, double RacketY, float d){
 
@@ -31,37 +43,59 @@ void drawRacket(float width, float height, double RacketX, double RacketY, float
 	glEnd();
 }
 
-void drawSection(float width, float height, float length, float position){
+void drawSection(float width, float height, float length, float position, Ball b, Racket r){
+
+	float illum;
 
 	glColor3f(0.1,0.1,0.1);
+	
     glBegin(GL_POLYGON);
+
+		glNormal3f(0.0,1.0,0.0);
 		glVertex3f(-width/2,-height/2,position);
+		glNormal3f(0.0,1.0,0.0);
 		glVertex3f(-width/2,-height/2,position-length);
+		glNormal3f(0.0,1.0,0.0);
 		glVertex3f(width/2,-height/2,position-length);
+		glNormal3f(0.0,1.0,0.0);
 		glVertex3f(width/2,-height/2,position);
 	glEnd();
 
-	glColor3f(0.5,0.5,0.5);
     glBegin(GL_POLYGON);
+	glColor3f(0.1,0.1,0.1);
+
+		glNormal3f(0.0,-1.0,0.0);
 		glVertex3f(-width/2,height/2,position);
+		glNormal3f(0.0,-1.0,0.0);
 		glVertex3f(-width/2,height/2,position-length);
+		glNormal3f(0.0,-1.0,0.0);
 		glVertex3f(width/2,height/2,position-length);
+		glNormal3f(0.0,-1.0,0.0);
 		glVertex3f(width/2,height/2,position);
+
 	glEnd();
 
 	glColor3f(0.3,0.3,0.3);
     glBegin(GL_POLYGON);
+		glNormal3f(1.0,0.0,0.0);
 		glVertex3f(-width/2,-height/2,position);
+		glNormal3f(1.0,0.0,0.0);
 		glVertex3f(-width/2,-height/2,position-length);
+		glNormal3f(1.0,0.0,0.0);
 		glVertex3f(-width/2,height/2,position-length);
+		glNormal3f(1.0,0.0,0.0);
 		glVertex3f(-width/2,height/2,position);
 	glEnd();
 
 	glColor3f(0.3,0.3,0.3);
     glBegin(GL_POLYGON);
+		glNormal3f(-1.0,0.0,0.0);
 		glVertex3f(width/2,-height/2,position);
+		glNormal3f(-1.0,0.0,0.0);
 		glVertex3f(width/2,-height/2,position-length);
+		glNormal3f(-1.0,0.0,0.0);
 		glVertex3f(width/2,height/2,position-length);
+		glNormal3f(-1.0,0.0,0.0);
 		glVertex3f(width/2,height/2,position);
 	glEnd();
 
@@ -86,11 +120,11 @@ void initSectionsTab(SectionsTab * st, int sectionNumber){
 	}
 }
 
-void drawSections(SectionsTab st){
+void drawSections(SectionsTab st, Ball b, Racket r){
 
 	for(int i = 0 ; i < st.sectionNumber ; i++){
 
-		drawSection(st.tab[i].width, st.tab[i].height, st.tab[i].length, st.tab[i].position);
+		drawSection(st.tab[i].width, st.tab[i].height, st.tab[i].length, st.tab[i].position, b, r);
 	}
 }
 
@@ -114,6 +148,7 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 	b->vx = vx;
 	b->vy = vy;
 	b->vz = vz;
+	b->isAlive = true;
 
 }
 
@@ -142,9 +177,24 @@ void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float yli
 	if(b->vy > 0 && b->y + b->radius > ylim) b->vy *= -1;
 	if(b->vy < 0 && b->y -b->radius < -ylim) b->vy *= -1;
 
-	//if(b->vz > 0 && b->z + b->radius > zlim) b->vz *= -1;
+	if(b->vz > 0 && b->z + b->radius > zlim - 20) b->isAlive = false;
 	if(b->vz < 0 && b->z -b->radius < -zlim) b->vz *= -1;
 
+}
+
+void translateBallOnRacket(Ball * b, Racket r){
+
+
+	if(!b->isAlive){
+
+		b->vx = 0;
+		b->vy = 0;
+		b->vz = 0;
+
+		b->x = r.racketx;
+		b->y = r.rackety;
+		b->z = r.racketz;
+	}
 }
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z){
@@ -197,9 +247,13 @@ void drawObstacle(Obstacle o){
 	//glDepthMask(false);
 	glColor4f(0.1,0.1,0.8,0.5);
     glBegin(GL_POLYGON);
+		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
+		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(o.x + o.width/2, o.y - o.height/2, o.z);
+		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(o.x + o.width/2, o.y + o.height/2, o.z);
+		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(o.x - o.width/2, o.y + o.height/2, o.z);
 	glEnd();
 	//glDepthMask(true);

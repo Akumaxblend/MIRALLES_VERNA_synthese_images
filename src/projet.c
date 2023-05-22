@@ -35,6 +35,9 @@ float speed = 0.03;
 float racketSpeed = 1;
 int movingRacket = -1;
 
+//initialisation de la balle
+
+Ball ball;
 static const float GL_VIEW_SIZE = 2.;
 
 /* Error handling function */
@@ -131,7 +134,31 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
     }
 	else movingRacket = -1;
 
+	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ball.isAlive){
+
+		ball.isAlive = true;
+		ball.vz = -20;
+	}
+
 }
+
+
+// void init(void) 
+// {
+//    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+//    GLfloat mat_shininess[] = { 50.0 };
+//    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
+//    glClearColor (0.0, 0.0, 0.0, 0.0);
+//    glShadeModel (GL_SMOOTH);
+
+//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+//    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+//    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+//    glEnable(GL_LIGHTING);
+//    glEnable(GL_LIGHT0);
+//    glEnable(GL_DEPTH_TEST);
+// }
 
 int main(int argc, char** argv)
 {
@@ -177,12 +204,10 @@ int main(int argc, char** argv)
 	//initialisation de la raquette 
 
 	Racket racket;
-	initRacket(&racket, 3, 3, RacketX, RacketY, 30-racketDist);
+	initRacket(&racket, 1, 1, RacketX, RacketY, 30-racketDist);
 
-	//initialisation de la balle
-
-	Ball ball;
 	initBall(&ball, 0, 0, 0, 1, 1, -20, 0.25);
+
 
 	//tests sur obstacles 
 
@@ -201,14 +226,26 @@ int main(int argc, char** argv)
 
 		//On update les coordonnées de la raquette
 
+		if(RacketX + racket.width/2 < 5 && RacketX - racket.width / 2 > -5){
 		racket.racketx = RacketX;
-		racket.rackety = RacketY;
+		}
+		if(RacketY + racket.height / 2 < 2.5 && RacketY - racket.height/2 > -2.5){
+			racket.rackety = RacketY;
+		}
+		
+
+		GLfloat light_position_racket[] = {RacketX,RacketY,racket.racketz,1.0};
+		GLfloat light_position_ball[] = {ball.x, ball.y, ball.z, 1.0};
+
+		GLfloat light_color_racket[] = {3.0, 3.0, 3.0};
+		GLfloat light_color_ball[] = {3.0, 0.0, 3.0};
+	
+
 
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.0,0.0,0.1,0.0);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glEnable (GL_BLEND); 
    	 	glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -216,11 +253,27 @@ int main(int argc, char** argv)
 		glLoadIdentity();
 		setCamera();	
 
+		//Light initialisation and positionning
+		glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
+		glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
+		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.5);
+		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1);
+		glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.5);
+		glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1);
+		glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color_racket);
+		glLightfv(GL_LIGHT1, GL_DIFFUSE, light_color_ball);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0);
+		glEnable(GL_LIGHT1);
+		glEnable(GL_DEPTH_TEST);
+		
+		
+
 		/* Scene rendering */
 
 		drawOrigin();
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
-		drawSections(sections);
+		drawSections(sections, ball, racket);
 		drawBall(ball);	
 		drawObstacles(ot);
 		
@@ -250,6 +303,7 @@ int main(int argc, char** argv)
 		obstaclesCollision(&ball, ot);
 		racketCollision(racket, &ball);
 		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 50);
+		translateBallOnRacket(&ball, racket);
 		translateRacket(&racket, -movingRacket * speed, &racketDist);
 		translateObstacles(&ot, animTime*speed);
 	}

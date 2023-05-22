@@ -1,6 +1,8 @@
 #ifndef PRIMITIVES_H
 #define PRIMITIVES_H
 
+#include <stdbool.h>
+
 typedef struct str_section
 {
 
@@ -29,6 +31,8 @@ typedef struct str_ball{
     float vz;
 
     float radius;
+
+    bool isAlive;
 
 }Ball;
 
@@ -66,9 +70,9 @@ typedef struct str_obstacles_tab{
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 
-void drawSection(float width, float height, float length, float position);
+void drawSection(float width, float height, float length, float position, Ball b, Racket r);
 
-void drawSections(SectionsTab st);
+void drawSections(SectionsTab st, Ball b, Racket r);
 
 void initSectionsTab(SectionsTab * st, int sectionNumber);
 
@@ -81,6 +85,8 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 void drawBall(Ball b);
 
 void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim, float zlim);
+
+void translateBallOnRacket(Ball * b, Racket r);
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z);
 
@@ -101,5 +107,7 @@ void translateObstacle(Obstacle * o, float dz);
 void translateObstacles(ObstaclesTab * ot, float dz);
 
 void obstaclesCollision(Ball * b, ObstaclesTab ot);
+
+float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 
 #endif

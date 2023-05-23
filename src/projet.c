@@ -258,9 +258,9 @@ int main(int argc, char** argv)
 		//Light initialisation and positionning
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
 		glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
-		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.5);
+		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.3);
 		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1);
-		glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.5);
+		glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3);
 		glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color_racket);
 		glLightfv(GL_LIGHT1, GL_DIFFUSE, light_color_ball);
@@ -274,11 +274,11 @@ int main(int argc, char** argv)
 		/* Scene rendering */
 
 		drawOrigin();
-		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
 		drawSections(10, sections, ball, racket);
-		drawBall(ball);	
 		drawObstacles(ot);
 		glDisable(GL_LIGHTING);
+		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
+		drawBall(ball);	
 		drawGUI(ball);
 		
 		

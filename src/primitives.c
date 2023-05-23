@@ -170,8 +170,8 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 	b->vx = vx;
 	b->vy = vy;
 	b->vz = vz;
-	b->isAlive = true;
-	b->lives = 3;
+	b->isAlive = false;
+	b->lives = 5;
 
 }
 
@@ -180,10 +180,10 @@ void drawBall(Ball b){
 	glMatrixMode(GL_MODELVIEW);
 	GLfloat diffuse_vect[] = {0.0, 1.0, 0, 1.0};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
+	glColor3f(1.0,0.0,1.0);
 	glPushMatrix();
 		glTranslatef(b.x, b.y, b.z);
 		glScalef(b.radius, b.radius, b.radius);
-		glColor3f(1.,0,0);
 		drawSphere();
 	glPopMatrix();
 
@@ -212,7 +212,7 @@ void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float yli
 }
 
 void translateBallOnRacket(Ball * b, Racket r){
-	
+
 	b->vx = 0;
 	b->vy = 0;
 	b->vz = 0;

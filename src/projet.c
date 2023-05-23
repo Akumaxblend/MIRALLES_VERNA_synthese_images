@@ -10,6 +10,8 @@
 #include "3D_tools.h"
 #include "draw_scene.h"
 
+#define SPEED 0.1
+
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 900;
@@ -30,7 +32,7 @@ double RacketY = 0;
 int fov = 60;
 float racketDist = 5;
 int sectionNumber = 10;
-float speed = 0.03;
+float speed = 0.1;
 float racketSpeed = 1;
 int movingRacket = -1;
 
@@ -137,6 +139,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 
 		ball.isAlive = true;
 		ball.vz = -20;
+		speed = SPEED;
 	}
 
 }
@@ -218,7 +221,7 @@ int main(int argc, char** argv)
 
 
 	/* Loop until the user closes the window */
-	while (!glfwWindowShouldClose(window))
+	while (!glfwWindowShouldClose(window) && ball.lives > 0)
 	{
 		/* Get time (in second) at loop beginning */
 		double startTime = glfwGetTime();
@@ -236,7 +239,7 @@ int main(int argc, char** argv)
 		GLfloat light_position_racket[] = {racket.racketx,racket.rackety,racket.racketz,1.0};
 		GLfloat light_position_ball[] = {ball.x, ball.y, ball.z, 1.0};
 
-		GLfloat light_color_racket[] = {3.0, 3.0, 3.0};
+		GLfloat light_color_racket[] = {1.0,2.0,1.0};
 		GLfloat light_color_ball[] = {3.0, 0.0, 3.0};
 	
 
@@ -275,6 +278,8 @@ int main(int argc, char** argv)
 		drawSections(10, sections, ball, racket);
 		drawBall(ball);	
 		drawObstacles(ot);
+		glDisable(GL_LIGHTING);
+		drawGUI(ball);
 		
 		
 
@@ -298,12 +303,18 @@ int main(int argc, char** argv)
 
 		/* Animate scenery */
 
-		translateSections(&sections, animTime * speed);
+		
 		obstaclesCollision(&ball, ot);
 		racketCollision(racket, &ball);
 		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 50);
-		translateBallOnRacket(&ball, racket);
 		translateRacket(&racket, -movingRacket * speed, &racketDist);
+
+		if(!ball.isAlive){
+
+			translateBallOnRacket(&ball, racket);
+			speed = 0;
+		}
+		translateSections(&sections, animTime * speed);
 		translateObstacles(&ot, animTime*speed);
 	}
 

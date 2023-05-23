@@ -46,7 +46,8 @@ void drawRacket(float width, float height, double RacketX, double RacketY, float
 void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r){
 
 
-	glColor3f(0.1,0.1,0.1);
+	GLfloat diffuse_vect[] = {0.7, 0.7, 0.7, 1.0};
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
 	
 		for(int i = 0 ; i < resolution ; i++){
 
@@ -170,13 +171,15 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 	b->vy = vy;
 	b->vz = vz;
 	b->isAlive = true;
+	b->lives = 3;
 
 }
 
 void drawBall(Ball b){
 
 	glMatrixMode(GL_MODELVIEW);
-
+	GLfloat diffuse_vect[] = {0.0, 1.0, 0, 1.0};
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
 	glPushMatrix();
 		glTranslatef(b.x, b.y, b.z);
 		glScalef(b.radius, b.radius, b.radius);
@@ -198,24 +201,25 @@ void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float yli
 	if(b->vy > 0 && b->y + b->radius > ylim) b->vy *= -1;
 	if(b->vy < 0 && b->y -b->radius < -ylim) b->vy *= -1;
 
-	if(b->vz > 0 && b->z + b->radius > zlim - 20) b->isAlive = false;
+	if(b->vz > 0 && b->z + b->radius > zlim - 20){
+
+		b->isAlive = false;
+		b->lives --;
+
+	} 
 	if(b->vz < 0 && b->z -b->radius < -zlim) b->vz *= -1;
 
 }
 
 void translateBallOnRacket(Ball * b, Racket r){
+	
+	b->vx = 0;
+	b->vy = 0;
+	b->vz = 0;
 
-
-	if(!b->isAlive){
-
-		b->vx = 0;
-		b->vy = 0;
-		b->vz = 0;
-
-		b->x = r.racketx;
-		b->y = r.rackety;
-		b->z = r.racketz;
-	}
+	b->x = r.racketx;
+	b->y = r.rackety;
+	b->z = r.racketz - 2*b->radius;
 }
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z){
@@ -248,6 +252,9 @@ void racketCollision(Racket r, Ball * b){
 		if(b->x + b->radius > (r.racketx - r.width/2) && b->x - b->radius < (r.racketx + r.width / 2) && b->y + b->radius > (r.rackety - r.height/2) && b->y - b->radius < (r.rackety + r.height/2)){
 
 			b->vz *= -1;
+
+			b->vx += (b->x - r.racketx) / (r.width /2);
+			b->vy += (b->y - r.rackety) / (r.height /2);
 		}
 	}
 }
@@ -267,6 +274,8 @@ void drawObstacle(Obstacle o){
 
 	//glDepthMask(false);
 	glColor4f(0.1,0.1,0.8,0.5);
+	GLfloat diffuse_vect[] = {1.0, 0.5, 0.8, 0.5};
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
     glBegin(GL_POLYGON);
 		glNormal3f(0.0, 0.0, 1.0);
 		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
@@ -340,6 +349,19 @@ void obstaclesCollision(Ball * b, ObstaclesTab ot){
 				break;
 			}
 		}
+	}
+}
+
+void drawGUI(Ball b){
+
+	for(int i = 0; i< b.lives ; i++){
+
+		glPushMatrix();
+			glTranslatef(-0.8 + i*0.15, -0.5, 29);
+			glScalef(0.05,0.05,0.05);
+			glColor3f(0,1.0,0);
+			drawSphere();
+		glPopMatrix();
 	}
 }
 

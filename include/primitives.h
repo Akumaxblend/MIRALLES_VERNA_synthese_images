@@ -33,6 +33,7 @@ typedef struct str_ball{
     float radius;
 
     bool isAlive;
+    int lives;
 
 }Ball;
 
@@ -109,5 +110,7 @@ void translateObstacles(ObstaclesTab * ot, float dz);
 void obstaclesCollision(Ball * b, ObstaclesTab ot);
 
 float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
+
+void drawGUI(Ball b);
 
 #endif

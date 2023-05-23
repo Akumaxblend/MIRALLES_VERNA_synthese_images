@@ -21,7 +21,6 @@ static float aspectRatio = 1.0;
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
 /* IHM flag */
-static int flag_animate_rot_scale = 0;
 static int flag_animate_rot_arm = 0;
 
 float animTime = 1;
@@ -234,7 +233,7 @@ int main(int argc, char** argv)
 		}
 		
 
-		GLfloat light_position_racket[] = {RacketX,RacketY,racket.racketz,1.0};
+		GLfloat light_position_racket[] = {racket.racketx,racket.rackety,racket.racketz,1.0};
 		GLfloat light_position_ball[] = {ball.x, ball.y, ball.z, 1.0};
 
 		GLfloat light_color_racket[] = {3.0, 3.0, 3.0};
@@ -265,15 +264,15 @@ int main(int argc, char** argv)
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_LIGHT1);
-		glEnable(GL_DEPTH_TEST);
-		
+		//glEnable(GL_DEPTH_TEST);
+		glShadeModel(GL_SMOOTH);
 		
 
 		/* Scene rendering */
 
 		drawOrigin();
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
-		drawSections(sections, ball, racket);
+		drawSections(10, sections, ball, racket);
 		drawBall(ball);	
 		drawObstacles(ot);
 		

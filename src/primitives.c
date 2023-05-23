@@ -43,61 +43,82 @@ void drawRacket(float width, float height, double RacketX, double RacketY, float
 	glEnd();
 }
 
-void drawSection(float width, float height, float length, float position, Ball b, Racket r){
+void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r){
 
-	float illum;
 
 	glColor3f(0.1,0.1,0.1);
 	
-    glBegin(GL_POLYGON);
+		for(int i = 0 ; i < resolution ; i++){
 
-		glNormal3f(0.0,1.0,0.0);
-		glVertex3f(-width/2,-height/2,position);
-		glNormal3f(0.0,1.0,0.0);
-		glVertex3f(-width/2,-height/2,position-length);
-		glNormal3f(0.0,1.0,0.0);
-		glVertex3f(width/2,-height/2,position-length);
-		glNormal3f(0.0,1.0,0.0);
-		glVertex3f(width/2,-height/2,position);
-	glEnd();
+			for(int j = 0 ; j < resolution ; j++){
+				glBegin(GL_POLYGON);
+				glNormal3f(0.0,1.0,0.0);
+				glVertex3f(-width/2 + j* width/resolution,-height/2, position - i*length / resolution);
+				glNormal3f(0.0,1.0,0.0);
+				glVertex3f(-width/2 + j*width/resolution,-height/2,position - (i+1)*length/resolution);
+				glNormal3f(0.0,1.0,0.0);
+				glVertex3f(-width/2 + (j+1) * width / resolution,-height/2,position - (i+1)*length/resolution);
+				glNormal3f(0.0,1.0,0.0);
+				glVertex3f(-width/2 + (j+1) * width / resolution,-height/2, position - i*length / resolution);
+				glEnd();
 
-    glBegin(GL_POLYGON);
-	glColor3f(0.1,0.1,0.1);
+			}
+		}
+	
+	for(int i = 0 ; i < resolution ; i++){
 
-		glNormal3f(0.0,-1.0,0.0);
-		glVertex3f(-width/2,height/2,position);
-		glNormal3f(0.0,-1.0,0.0);
-		glVertex3f(-width/2,height/2,position-length);
-		glNormal3f(0.0,-1.0,0.0);
-		glVertex3f(width/2,height/2,position-length);
-		glNormal3f(0.0,-1.0,0.0);
-		glVertex3f(width/2,height/2,position);
+			for(int j = 0 ; j < resolution ; j++){
 
-	glEnd();
+				glBegin(GL_POLYGON);
 
-	glColor3f(0.3,0.3,0.3);
-    glBegin(GL_POLYGON);
-		glNormal3f(1.0,0.0,0.0);
-		glVertex3f(-width/2,-height/2,position);
-		glNormal3f(1.0,0.0,0.0);
-		glVertex3f(-width/2,-height/2,position-length);
-		glNormal3f(1.0,0.0,0.0);
-		glVertex3f(-width/2,height/2,position-length);
-		glNormal3f(1.0,0.0,0.0);
-		glVertex3f(-width/2,height/2,position);
-	glEnd();
+					glNormal3f(0.0,-1.0,0.0);
+					glVertex3f(-width/2 + j* width/resolution,height/2,position - i*length / resolution);
+					glNormal3f(0.0,-1.0,0.0);
+					glVertex3f(-width/2 + j* width/resolution,height/2,position - (i+1)*length/resolution);
+					glNormal3f(0.0,-1.0,0.0);
+					glVertex3f(-width/2 + (j+1) * width / resolution,height/2,position - (i+1)*length/resolution);
+					glNormal3f(0.0,-1.0,0.0);
+					glVertex3f(-width/2 + (j+1) * width / resolution,height/2,position - i*length / resolution);
 
-	glColor3f(0.3,0.3,0.3);
-    glBegin(GL_POLYGON);
-		glNormal3f(-1.0,0.0,0.0);
-		glVertex3f(width/2,-height/2,position);
-		glNormal3f(-1.0,0.0,0.0);
-		glVertex3f(width/2,-height/2,position-length);
-		glNormal3f(-1.0,0.0,0.0);
-		glVertex3f(width/2,height/2,position-length);
-		glNormal3f(-1.0,0.0,0.0);
-		glVertex3f(width/2,height/2,position);
-	glEnd();
+				glEnd();
+
+			}
+
+	}
+
+    
+	for(int i = 0 ; i < resolution ; i++){
+
+			for(int j = 0 ; j < resolution ; j++){
+				glBegin(GL_POLYGON);
+					glNormal3f(1.0,0.0,0.0);
+					glVertex3f(-width/2,-height/2 + i*height/resolution,position-j*length/resolution);
+					glNormal3f(1.0,0.0,0.0);
+					glVertex3f(-width/2,-height/2 + i*height/resolution,position-(j+1)*length/resolution);
+					glNormal3f(1.0,0.0,0.0);
+					glVertex3f(-width/2,-height/2 + (i+1) * height / resolution,position-(j+1)*length/resolution);
+					glNormal3f(1.0,0.0,0.0);
+					glVertex3f(-width/2,-height/2 + (i+1) * height / resolution,position-j*length/resolution);
+				glEnd();
+			}		
+	}
+	
+	for(int i = 0 ; i < resolution ; i++){
+
+			for(int j = 0 ; j < resolution ; j++){
+				glBegin(GL_POLYGON);
+					glNormal3f(-1.0,0.0,0.0);
+					glVertex3f(width/2,-height/2 + i*height/resolution,position-j*length/resolution);
+					//glNormal3f(-1.0,0.0,0.0);
+					glVertex3f(width/2,-height/2 + i*height/resolution,position-(j+1)*length/resolution);
+					//glNormal3f(-1.0,0.0,0.0);
+					glVertex3f(width/2,-height/2 + (i+1) * height / resolution,position-(j+1)*length/resolution);
+					//glNormal3f(-1.0,0.0,0.0);
+					glVertex3f(width/2,-height/2 + (i+1) * height / resolution,position-j*length/resolution);
+				glEnd();
+			}
+	}
+	
 
 }
 
@@ -120,11 +141,11 @@ void initSectionsTab(SectionsTab * st, int sectionNumber){
 	}
 }
 
-void drawSections(SectionsTab st, Ball b, Racket r){
+void drawSections(int resolution, SectionsTab st, Ball b, Racket r){
 
 	for(int i = 0 ; i < st.sectionNumber ; i++){
 
-		drawSection(st.tab[i].width, st.tab[i].height, st.tab[i].length, st.tab[i].position, b, r);
+		drawSection(resolution, st.tab[i].width, st.tab[i].height, st.tab[i].length, st.tab[i].position, b, r);
 	}
 }
 

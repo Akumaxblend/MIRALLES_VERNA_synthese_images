@@ -70,9 +70,9 @@ typedef struct str_obstacles_tab{
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 
-void drawSection(float width, float height, float length, float position, Ball b, Racket r);
+void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r);
 
-void drawSections(SectionsTab st, Ball b, Racket r);
+void drawSections(int resolution, SectionsTab st, Ball b, Racket r);
 
 void initSectionsTab(SectionsTab * st, int sectionNumber);
 

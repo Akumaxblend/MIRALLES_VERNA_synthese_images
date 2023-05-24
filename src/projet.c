@@ -11,6 +11,7 @@
 #include "draw_scene.h"
 
 #define SPEED 0.1
+#define MAX_SECTION_NUMBER 20
 
 
 /* Window properties */
@@ -35,6 +36,7 @@ int sectionNumber = 10;
 float speed = 0.1;
 float racketSpeed = 1;
 int movingRacket = -1;
+
 
 //initialisation de la balle
 
@@ -218,6 +220,13 @@ int main(int argc, char** argv)
 
 	ObstaclesTab ot;
 	initObstaclesTab(&ot, 10, 15, 10, 5);
+	// Obstacle boss;
+	// initObstacle(&boss, -MAX_SECTION_NUMBER * 15, 0, 0);
+	// boss.x = 0;
+	// boss.y = 0;
+	// boss.height = 5;
+	// boss.width = 10;
+	// ot.tab[ot.nb] = boss;
 
 
 	/* Loop until the user closes the window */
@@ -255,6 +264,7 @@ int main(int argc, char** argv)
 		glLoadIdentity();
 		setCamera();	
 
+		
 		//Light initialisation and positionning
 		glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
 		glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
@@ -264,22 +274,24 @@ int main(int argc, char** argv)
 		glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1);
 		glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color_racket);
 		glLightfv(GL_LIGHT1, GL_DIFFUSE, light_color_ball);
-		glEnable(GL_LIGHTING);
+		//glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 		glEnable(GL_LIGHT1);
-		//glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		glShadeModel(GL_SMOOTH);
 		
 
 		/* Scene rendering */
 
-		drawOrigin();
-		drawSections(10, sections, ball, racket);
-		drawObstacles(ot);
-		glDisable(GL_LIGHTING);
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
 		drawBall(ball);	
 		drawGUI(ball);
+		
+		glEnable(GL_LIGHTING);
+		drawSections(10, sections, ball, racket);
+		drawObstacles(ot);
+		glDisable(GL_LIGHTING);
+		
 		
 		
 
@@ -314,8 +326,8 @@ int main(int argc, char** argv)
 			translateBallOnRacket(&ball, racket);
 			speed = 0;
 		}
-		translateSections(&sections, animTime * speed);
-		translateObstacles(&ot, animTime*speed);
+		translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
+		translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
 	}
 
 	glfwTerminate();

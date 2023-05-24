@@ -134,6 +134,7 @@ void initSection(Section * s, float w, float h, float l, float p){
 void initSectionsTab(SectionsTab * st, int sectionNumber){
 
 	st->sectionNumber = sectionNumber;
+	st->nb_spawned = sectionNumber;
 	for(int i = 0 ; i < sectionNumber ; i ++){
 
 		Section tmp;
@@ -150,13 +151,14 @@ void drawSections(int resolution, SectionsTab st, Ball b, Racket r){
 	}
 }
 
-void translateSections(SectionsTab * st, float d){
+void translateSections(SectionsTab * st, float d, int spawnLimit){
 
 	for(int i = 0; i < st->sectionNumber ; i ++){
 
 		st->tab[i].position += d;
-		if(st->tab[i].position > 50){
+		if(st->tab[i].position > 50 && st->nb_spawned < spawnLimit){
 			st->tab[i].position = 50 - ((st->sectionNumber-1) * 15);
+			st->nb_spawned ++;
 		}
 	}
 }
@@ -292,6 +294,7 @@ void drawObstacle(Obstacle o){
 void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float ylim){
 
 	ot->nb = nb;
+	ot->nb_spawned = nb;
 	for(int i = 0; i <nb; i++){
 
 		Obstacle tmp;
@@ -313,16 +316,16 @@ void translateObstacle(Obstacle * o, float dz){
 	o->z += dz;
 }
 
-void translateObstacles(ObstaclesTab * ot, float dz){
+void translateObstacles(ObstaclesTab * ot, float dz, int maxSpawned){
 
 	for(int i = 0; i<ot->nb; i++){
 
-		if(ot->tab[i].z < 25){ //On translate si l'obstacle n'a pas atteint la camera
+		if(ot->tab[i].z < 31){ //On translate si l'obstacle n'a pas atteint la camera
 
 			translateObstacle(&(ot->tab[i]), dz);
 		}
 
-		else{
+		else if (ot->nb_spawned < maxSpawned){
 
 			for(int i = 0; i< ot->nb - 1; i++){
 
@@ -333,15 +336,16 @@ void translateObstacles(ObstaclesTab * ot, float dz){
 
 			initObstacle(&tmp, 15 - ot->nb * 15, 10, 5);
 			ot->tab[ot->nb-1] = tmp;
+			ot->nb_spawned ++;
 		}
 	}
 }
 
 void obstaclesCollision(Ball * b, ObstaclesTab ot){
 
-	for(int i = 0 ; i < ot.nb ; i++){
+	for(int i = 0 ; i <= ot.nb ; i++){
 
-		if(b->vz < 0 && b->z < ot.tab[i].z){
+		if(b->vz < 0 && b->z < ot.tab[i].z && ot.tab[i].z < 25){
 
 			if((b->x + b->radius > ot.tab[i].x - ot.tab[i].width/2) && (b->x - b->radius < ot.tab[i].x + ot.tab[i].width/2) && (b->y + b->radius > ot.tab[i].y - ot.tab[i].height/2) && (b->y - b->radius < ot.tab[i].y + ot.tab[i].height/2)){
 

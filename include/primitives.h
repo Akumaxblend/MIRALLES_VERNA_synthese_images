@@ -17,6 +17,7 @@ typedef struct str_sectionstab{
 
     Section tab[10] ;
     int sectionNumber;
+    int nb_spawned;
 
 }SectionsTab;
 
@@ -64,8 +65,9 @@ typedef struct str_obstacle{
 typedef struct str_obstacles_tab{
 
     int nb;
-    
+    int nb_spawned;
     Obstacle tab[20];
+
 }ObstaclesTab;
 
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
@@ -77,7 +79,7 @@ void drawSections(int resolution, SectionsTab st, Ball b, Racket r);
 
 void initSectionsTab(SectionsTab * st, int sectionNumber);
 
-void translateSections(SectionsTab * st, float d);
+void translateSections(SectionsTab * st, float d, int spawnLimit);
 
 void initSection(Section * s, float w, float h, float l, float p);
 
@@ -105,7 +107,7 @@ void drawObstacles(ObstaclesTab ot);
 
 void translateObstacle(Obstacle * o, float dz);
 
-void translateObstacles(ObstaclesTab * ot, float dz);
+void translateObstacles(ObstaclesTab * ot, float dz,int maxSpawned);
 
 void obstaclesCollision(Ball * b, ObstaclesTab ot);
 

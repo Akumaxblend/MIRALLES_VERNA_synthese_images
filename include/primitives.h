@@ -2,6 +2,7 @@
 #define PRIMITIVES_H
 
 #include <stdbool.h>
+#include <string.h>
 
 typedef struct str_section
 {
@@ -70,6 +71,17 @@ typedef struct str_obstacles_tab{
 
 }ObstaclesTab;
 
+typedef struct str_bonus{
+
+    char * type;
+    
+    float x;
+    float y;
+    float z;
+
+    float vz;
+}Bonus;
+
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 
@@ -93,6 +105,8 @@ void translateBallOnRacket(Ball * b, Racket r);
 
 void initRacket(Racket * r, float w, float h, float x, float y, float z);
 
+void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim);
+
 void translateRacket(Racket * r, float dz, float * extRacketPosition);
 
 void racketCollision(Racket r, Ball * b);
@@ -114,5 +128,11 @@ void obstaclesCollision(Ball * b, ObstaclesTab ot);
 float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 
 void drawGUI(Ball b);
+
+void drawBonus(Bonus b);
+
+void translateBonus(Bonus * b, float dz);
+
+void bonusCollision(Bonus * bonus, Racket r, Ball * ball);
 
 #endif

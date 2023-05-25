@@ -256,6 +256,28 @@ void initRacket(Racket * r, float w, float h, float x, float y, float z){
 	r->racketz = z;
 }
 
+void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim){
+
+	b->type = type;
+	b->z = z;
+	b->vz = vz;
+
+	b->x = rand() % (2 * (int)xlim) - xlim;
+	b->y = rand() % (2 * (int)ylim) - ylim;
+
+}
+
+void translateBonus(Bonus * b, float dz){
+
+	b->z += dz;
+	if(b->z > 26){
+		if(rand() % 2 == 0){
+			initBonus(b, "glue", 0, b->vz, 5, 2.5);
+		}
+		else initBonus(b, "life", 0, b->vz, 5, 2.5);
+	}
+}
+
 
 void translateRacket(Racket * r, float dz, float * extRacketPosition){
 
@@ -415,5 +437,46 @@ void drawGUI(Ball b){
 	}
 }
 
+void drawBonus(Bonus b){
+
+	if(strcmp(b.type, "life") == 0){
+
+		glPushMatrix();
+			glTranslatef(b.x, b.y, b.z);
+			glScalef(0.15,0.15,0.15);
+			glColor3f(0,1.0,0);
+			drawSphere();
+		glPopMatrix();
+	}
+	else if (strcmp(b.type, "glue") == 0){
+		glPushMatrix();
+			glTranslatef(b.x, b.y, b.z);
+			glScalef(0.15,0.15,0.15);
+			glColor3f(1.0,1.0,1.0);
+			drawSphere();
+		glPopMatrix();
+	}
+}
+
+void bonusCollision(Bonus * bonus, Racket r, Ball * ball){
+
+	if(r.racketz > bonus->z - 0.15 && r.racketz < bonus->z + 0.15){
+
+		if(r.racketx + r.width / 2 > bonus->x - 0.15 && r.racketx - r.width / 2 < bonus->x + 0.15){
+
+			if(r.rackety + r.height / 2 > bonus->y - 0.15 && r.rackety - r.height / 2 < bonus->y + 0.15){
+
+				if(strcmp(bonus->type, "life") == 0) ball->lives ++;
+
+				else if (strcmp(bonus->type, "glue") == 0) ball->isAlive = false;
+
+				if(rand() % 2 == 0){
+					initBonus(bonus, "life", 0, bonus->vz, 5, 2.5);
+				}
+				else initBonus(bonus, "glue", 0, bonus->vz, 5, 2.5);
+			}
+		}
+	}
+}
 
 

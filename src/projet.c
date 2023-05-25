@@ -11,6 +11,7 @@
 #include "draw_scene.h"
 
 #define SPEED 0.1
+#define RACKET_SPEED 1
 #define MAX_SECTION_NUMBER 20
 
 
@@ -142,6 +143,7 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		ball.isAlive = true;
 		ball.vz = -20;
 		speed = SPEED;
+		racketSpeed = RACKET_SPEED;
 	}
 
 }
@@ -212,11 +214,10 @@ int main(int argc, char** argv)
 
 	initBall(&ball, 0, 0, 0, 1, 1, -20, 0.25);
 
+	//test syr bonus
 
-	//tests sur obstacles 
-
-	// Obstacle obs;
-	// initObstacle(&obs, 15.0, 10.0, 5.0);
+	Bonus bonus;
+	initBonus(&bonus, "life", 20, speed, 5, 2.5);
 
 	ObstaclesTab ot;
 	initObstaclesTab(&ot, 10, 15, 10, 5);
@@ -286,6 +287,7 @@ int main(int argc, char** argv)
 		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
 		drawBall(ball);	
 		drawGUI(ball);
+		drawBonus(bonus);
 		
 		glEnable(GL_LIGHTING);
 		drawSections(10, sections, ball, racket);
@@ -319,15 +321,19 @@ int main(int argc, char** argv)
 		obstaclesCollision(&ball, ot);
 		racketCollision(racket, &ball);
 		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 50);
-		translateRacket(&racket, -movingRacket * speed, &racketDist);
+		translateRacket(&racket, -movingRacket * racketSpeed, &racketDist);
+		bonusCollision(&bonus, racket, &ball);
+		
 
 		if(!ball.isAlive){
 
 			translateBallOnRacket(&ball, racket);
 			speed = 0;
+			racketSpeed = 0;
 		}
 		translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
 		translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
+		translateBonus(&bonus, 2 * speed * animTime);
 	}
 
 	glfwTerminate();

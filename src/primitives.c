@@ -7,6 +7,8 @@
 #include <math.h>
 #include "primitives.h"
 #include "3D_tools.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 #include <time.h>
 
 float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2){
@@ -45,6 +47,20 @@ void drawRacket(float width, float height, double RacketX, double RacketY, float
 
 void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r){
 
+	// int textX = 0;
+	// int textY = 0;
+	// int textN = 0;
+
+	// unsigned char* loaded;
+	// loaded = stbi_load("images/mini.jpg",&textX, &textY, &textN, 0);
+	// GLuint texture_walls;
+	// glGenTextures(1, &texture_walls);
+	// glBindTexture(GL_TEXTURE_2D, texture_walls);
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	// glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textX, textY, 0, GL_RGB, GL_UNSIGNED_BYTE, loaded);
+
+	// glEnable(GL_TEXTURE_2D);
+
 
 	GLfloat diffuse_vect[] = {0.7, 0.7, 0.7, 1.0};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
@@ -54,12 +70,16 @@ void drawSection(int resolution, float width, float height, float length, float 
 			for(int j = 0 ; j < resolution ; j++){
 				glBegin(GL_POLYGON);
 				glNormal3f(0.0,1.0,0.0);
+				//glTexCoord2f(0,0);
 				glVertex3f(-width/2 + j* width/resolution,-height/2, position - i*length / resolution);
 				glNormal3f(0.0,1.0,0.0);
+				//glTexCoord2f(1,0);
 				glVertex3f(-width/2 + j*width/resolution,-height/2,position - (i+1)*length/resolution);
 				glNormal3f(0.0,1.0,0.0);
+				//glTexCoord2f(1,1);
 				glVertex3f(-width/2 + (j+1) * width / resolution,-height/2,position - (i+1)*length/resolution);
 				glNormal3f(0.0,1.0,0.0);
+				//glTexCoord2f(0,1);
 				glVertex3f(-width/2 + (j+1) * width / resolution,-height/2, position - i*length / resolution);
 				glEnd();
 
@@ -119,7 +139,10 @@ void drawSection(int resolution, float width, float height, float length, float 
 				glEnd();
 			}
 	}
-	
+	// glDisable(GL_TEXTURE_2D);
+	// glBindTexture(GL_TEXTURE_2D, 0);
+	// glDeleteTextures(1, &texture_walls);
+	// stbi_image_free(loaded);
 
 }
 
@@ -275,19 +298,42 @@ void initObstacle(Obstacle * o, float position, float xlim, float ylim){
 void drawObstacle(Obstacle o){
 
 	//glDepthMask(false);
-	glColor4f(0.1,0.1,0.8,0.5);
+
+	int textX = 0;
+	int textY = 0;
+	int textN = 0;
+
+	unsigned char* loaded;
+	loaded = stbi_load("images/stone.png",&textX, &textY, &textN, 0);
+	GLuint texture_walls;
+	glGenTextures(1, &texture_walls);
+	glBindTexture(GL_TEXTURE_2D, texture_walls);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textX, textY, 0, GL_RGBA, GL_UNSIGNED_BYTE, loaded);
+
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0,1.0,1.0,0.85);
 	GLfloat diffuse_vect[] = {1.0, 0.5, 0.8, 0.5};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
     glBegin(GL_POLYGON);
 		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(0,0);
 		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
 		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(1,0);
 		glVertex3f(o.x + o.width/2, o.y - o.height/2, o.z);
 		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(1.0,1.0);
 		glVertex3f(o.x + o.width/2, o.y + o.height/2, o.z);
 		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(0,1.0);
 		glVertex3f(o.x - o.width/2, o.y + o.height/2, o.z);
 	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(1, &texture_walls);
+	stbi_image_free(loaded);
 	//glDepthMask(true);
 }
 

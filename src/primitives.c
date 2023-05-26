@@ -262,8 +262,8 @@ void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim
 	b->z = z;
 	b->vz = vz;
 
-	b->x = rand() % (2 * (int)xlim) - xlim;
-	b->y = rand() % (2 * (int)ylim) - ylim;
+	b->x = rand() % (2 * (int)xlim - 1) - xlim + 1;
+	b->y = rand() % (2 * (int)ylim - 1) - ylim + 1;
 
 }
 
@@ -272,9 +272,9 @@ void translateBonus(Bonus * b, float dz){
 	b->z += dz;
 	if(b->z > 26){
 		if(rand() % 2 == 0){
-			initBonus(b, "glue", 0, b->vz, 5, 2.5);
+			initBonus(b, "glue", -30, b->vz, 5, 2.5);
 		}
-		else initBonus(b, "life", 0, b->vz, 5, 2.5);
+		else initBonus(b, "life", -30, b->vz, 5, 2.5);
 	}
 }
 

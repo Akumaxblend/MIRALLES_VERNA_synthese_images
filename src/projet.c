@@ -10,7 +10,7 @@
 #include "3D_tools.h"
 #include "draw_scene.h"
 
-#define SPEED 0.1
+#define SPEED 0.3
 #define RACKET_SPEED 1
 #define MAX_SECTION_NUMBER 20
 

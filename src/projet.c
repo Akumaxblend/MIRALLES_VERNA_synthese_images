@@ -25,7 +25,6 @@ static float aspectRatio = 1.0;
 static const double FRAMERATE_IN_SECONDS = 1. / 30.;
 
 /* IHM flag */
-static int flag_animate_rot_arm = 0;
 
 float animTime = 1;
 
@@ -38,12 +37,114 @@ float speed = 0.1;
 float racketSpeed = 1;
 int movingRacket = -1;
 
-
-//initialisation de la balle
-
+// Déclaration des acteurs
 Ball ball;
+SectionsTab sections;
+Racket racket;
+Bonus bonus;
+ObstaclesTab ot;
+
+//Déclaration des variables d'illumination
+
+GLfloat light_color_racket[] = {1.0,2.0,1.0};
+GLfloat light_color_ball[] = {3.0, 0.0, 3.0};
+
+GLfloat light_position_racket[] = {0,0,25, 1.0};
+GLfloat light_position_ball[] = {0, 0, 25, 1.0};
+
 static const float GL_VIEW_SIZE = 2.;
 
+void initActors(){
+
+	//Random seed initialisation
+	srand(time(NULL));
+
+	//initialisation de la balle
+	initBall(&ball, 0, 0, 0, 0.0, 0.0, 0.0, 0.25);
+
+	//initialisation des sections
+	initSectionsTab(&sections, sectionNumber);
+
+	//initialisation de la raquette 
+	initRacket(&racket, 1, 1, RacketX, RacketY, 30-racketDist);
+
+	//initialisation du bonus
+	initBonus(&bonus, "life", 20, speed, 5, 2.5);
+
+	//initialisation des obstacles
+	initObstaclesTab(&ot, 10, 15, 10, 5);
+
+}
+
+void drawUnlitScene(){
+
+	drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
+	drawBall(ball);	
+	drawGUI(ball);
+	drawBonus(bonus);
+
+	
+}
+
+void drawLitScene(){
+
+	 //On active le lighting de la scene pour les sections et les obstacles uniquement
+	drawSections(10, sections, ball, racket);
+	drawObstacles(ot);
+}
+
+void initLighting(){
+
+	
+	glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
+	glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
+	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.3);
+	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1);
+	glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3);
+	glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color_racket);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_color_ball);
+	glEnable(GL_LIGHT0);
+	glEnable(GL_LIGHT1);
+	glEnable(GL_DEPTH_TEST);
+	glShadeModel(GL_SMOOTH);
+}
+
+void updateLighting(Ball ball, Racket racket){
+
+	light_position_racket[0] = racket.racketx;
+	light_position_racket[1] = racket.rackety;
+	light_position_racket[2] = racket.racketz;
+
+	light_position_ball[0] = ball.x;
+	light_position_ball[1] = ball.y;
+	light_position_ball[2] = ball.z;
+
+}
+
+void testCollisions(){
+
+	obstaclesCollision(&ball, ot);
+	racketCollision(racket, &ball);
+	bonusCollision(&bonus, racket, &ball);
+}
+
+void translateActors(float time){
+
+
+	translateBall(&ball, ball.vx * animTime, ball.vy * animTime, ball.vz * animTime, 5, 2.5, 50);
+	translateRacket(&racket, -movingRacket * racketSpeed, &racketDist);
+	
+	if(!ball.isAlive){
+		translateBallOnRacket(&ball, racket);
+		speed = 0;
+		racketSpeed = 0;
+	}
+
+	translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
+	translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
+	translateBonus(&bonus, 2 * speed * animTime);
+}
 /* Error handling function */
 void onError(int error, const char* description)
 {
@@ -79,34 +180,6 @@ void onKey(GLFWwindow* window, int key, int scancode, int action, int mods)
 			case GLFW_KEY_P :
 				glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 				break;
-			// case GLFW_KEY_R :
-			// 	flag_animate_rot_arm = 1-flag_animate_rot_arm;
-			// 	break;
-			// case GLFW_KEY_T :
-			// 	flag_animate_rot_scale = 1-flag_animate_rot_scale;
-			// 	break;
-			// case GLFW_KEY_KP_9 :
-			// 	if(dist_zoom<100.0f) dist_zoom*=1.1;
-			// 	printf("Zoom is %f\n",dist_zoom);
-			// 	break;
-			// case GLFW_KEY_KP_3 :
-			// 	if(dist_zoom>1.0f) dist_zoom*=0.9;
-			// 	printf("Zoom is %f\n",dist_zoom);
-			// 	break;
-			case GLFW_KEY_UP :
-				if (phy>2) phy -= 2;
-				printf("Phy %f\n",phy);
-				break;
-			case GLFW_KEY_DOWN :
-				if (phy<=88.) phy += 2;
-				printf("Phy %f\n",phy);
-				break;
-			case GLFW_KEY_LEFT :
-				theta -= 5;
-				break;
-			case GLFW_KEY_RIGHT :
-				theta += 5;
-				break;
 			default: fprintf(stdout,"Touche non gérée (%d)\n",key);
 		}
 	}
@@ -141,30 +214,12 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ball.isAlive){
 
 		ball.isAlive = true;
-		ball.vz = -20;
+		ball.vz = -2;
 		speed = SPEED;
 		racketSpeed = RACKET_SPEED;
 	}
 
 }
-
-
-// void init(void) 
-// {
-//    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-//    GLfloat mat_shininess[] = { 50.0 };
-//    GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-//    glClearColor (0.0, 0.0, 0.0, 0.0);
-//    glShadeModel (GL_SMOOTH);
-
-//    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-//    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-//    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-
-//    glEnable(GL_LIGHTING);
-//    glEnable(GL_LIGHT0);
-//    glEnable(GL_DEPTH_TEST);
-// }
 
 int main(int argc, char** argv)
 {
@@ -187,48 +242,15 @@ int main(int argc, char** argv)
 
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
-
 	glfwSetWindowSizeCallback(window,onWindowResized);
 	glfwSetKeyCallback(window, onKey);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-
 	onWindowResized(window,WINDOW_WIDTH,WINDOW_HEIGHT);
-
 	glPointSize(5.0);
-	glEnable(GL_DEPTH_TEST);
 
-	//Random seed initialisation
-
-	srand(time(NULL));
-
-	//initialisation des sections
-
-	SectionsTab sections;
-	initSectionsTab(&sections, sectionNumber);
-
-	//initialisation de la raquette 
-
-	Racket racket;
-	initRacket(&racket, 1, 1, RacketX, RacketY, 30-racketDist);
-
-	initBall(&ball, 0, 0, 0, 1, 1, -20, 0.25);
-
-	//test syr bonus
-
-	Bonus bonus;
-	initBonus(&bonus, "life", 20, speed, 5, 2.5);
-
-	ObstaclesTab ot;
-	initObstaclesTab(&ot, 10, 15, 10, 5);
-	// Obstacle boss;
-	// initObstacle(&boss, -MAX_SECTION_NUMBER * 15, 0, 0);
-	// boss.x = 0;
-	// boss.y = 0;
-	// boss.height = 5;
-	// boss.width = 10;
-	// ot.tab[ot.nb] = boss;
-
+	//On initialise les acteurs déclarés plus tôt
+	initActors();
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window) && ball.lives > 0)
@@ -244,57 +266,29 @@ int main(int argc, char** argv)
 		if(RacketY + racket.height / 2 < 2.5 && RacketY - racket.height/2 > -2.5){
 			racket.rackety = RacketY;
 		}
-		
 
-		GLfloat light_position_racket[] = {racket.racketx,racket.rackety,racket.racketz,1.0};
-		GLfloat light_position_ball[] = {ball.x, ball.y, ball.z, 1.0};
+		//On active le lighting
+		initLighting();
 
-		GLfloat light_color_racket[] = {1.0,2.0,1.0};
-		GLfloat light_color_ball[] = {3.0, 0.0, 3.0};
-	
-
+		//On met à jour la position du lighting
+		updateLighting(ball, racket);
 
 		/* Cleaning buffers and setting Matrix Mode */
 		glClearColor(0.0,0.0,0.1,0.0);
-
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glEnable (GL_BLEND); 
    	 	glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 		setCamera();	
-
 		
-		//Light initialisation and positionning
-		glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
-		glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
-		glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.3);
-		glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.1);
-		glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION, 0.3);
-		glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.1);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, light_color_racket);
-		glLightfv(GL_LIGHT1, GL_DIFFUSE, light_color_ball);
-		//glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
-		glEnable(GL_LIGHT1);
-		glEnable(GL_DEPTH_TEST);
-		glShadeModel(GL_SMOOTH);
 		
-
 		/* Scene rendering */
-
-		drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
-		drawBall(ball);	
-		drawGUI(ball);
-		drawBonus(bonus);
 		
-		glEnable(GL_LIGHTING);
-		drawSections(10, sections, ball, racket);
-		drawObstacles(ot);
 		glDisable(GL_LIGHTING);
-		
-		
+		drawUnlitScene();
+		glEnable(GL_LIGHTING);
+		drawLitScene();
 		
 
 		/* Swap front and back buffers */
@@ -307,8 +301,6 @@ int main(int argc, char** argv)
 
 		double elapsedTime = glfwGetTime() - startTime;
 
-		animTime += elapsedTime * flag_animate_rot_arm;
-
 		/* If to few time is spend vs our wanted FPS, we wait */
 		if(elapsedTime < FRAMERATE_IN_SECONDS)
 		{
@@ -317,23 +309,11 @@ int main(int argc, char** argv)
 
 		/* Animate scenery */
 
-		
-		obstaclesCollision(&ball, ot);
-		racketCollision(racket, &ball);
-		translateBall(&ball, ball.vx * elapsedTime, ball.vy * elapsedTime, ball.vz * elapsedTime, 5, 2.5, 50);
-		translateRacket(&racket, -movingRacket * racketSpeed, &racketDist);
-		bonusCollision(&bonus, racket, &ball);
-		
+		//On test d'éventuelles collisions
+		testCollisions();
 
-		if(!ball.isAlive){
-
-			translateBallOnRacket(&ball, racket);
-			speed = 0;
-			racketSpeed = 0;
-		}
-		translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
-		translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
-		translateBonus(&bonus, 2 * speed * animTime);
+		//On déplace les différents acteurs dans la scène en fonction du facteur voulu
+		translateActors(animTime);
 	}
 
 	glfwTerminate();

@@ -262,8 +262,8 @@ void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim
 	b->z = z;
 	b->vz = vz;
 
-	b->x = rand() % (2 * (int)xlim - 1) - xlim + 1;
-	b->y = rand() % (2 * (int)ylim - 1) - ylim + 1;
+	b->x = rand() % (2 * (int)xlim - 2) - xlim + 1;
+	b->y = rand() % (2 * (int)ylim - 2) - ylim + 1;
 
 }
 
@@ -300,8 +300,8 @@ void racketCollision(Racket r, Ball * b){
 
 			b->vz *= -1;
 
-			b->vx += (b->x - r.racketx) / (r.width /2);
-			b->vy += (b->y - r.rackety) / (r.height /2);
+			b->vx += (b->x - r.racketx) / (r.width /2) * 0.2;
+			b->vy += (b->y - r.rackety) / (r.height /2) * 0.2;
 		}
 	}
 }
@@ -460,20 +460,20 @@ void drawBonus(Bonus b){
 
 void bonusCollision(Bonus * bonus, Racket r, Ball * ball){
 
-	if(r.racketz > bonus->z - 0.15 && r.racketz < bonus->z + 0.15){
+	if(r.racketz > bonus->z - 1 && r.racketz < bonus->z + 1){
 
-		if(r.racketx + r.width / 2 > bonus->x - 0.15 && r.racketx - r.width / 2 < bonus->x + 0.15){
+		if(r.racketx + r.width / 2 > bonus->x - 1 && r.racketx - r.width / 2 < bonus->x + 1){
 
-			if(r.rackety + r.height / 2 > bonus->y - 0.15 && r.rackety - r.height / 2 < bonus->y + 0.15){
+			if(r.rackety + r.height / 2 > bonus->y - 1 && r.rackety - r.height / 2 < bonus->y + 1){
 
 				if(strcmp(bonus->type, "life") == 0) ball->lives ++;
 
 				else if (strcmp(bonus->type, "glue") == 0) ball->isAlive = false;
 
 				if(rand() % 2 == 0){
-					initBonus(bonus, "life", 0, bonus->vz, 5, 2.5);
+					initBonus(bonus, "life", -30, bonus->vz, 5, 2.5);
 				}
-				else initBonus(bonus, "glue", 0, bonus->vz, 5, 2.5);
+				else initBonus(bonus, "glue", -30, bonus->vz, 5, 2.5);
 			}
 		}
 	}

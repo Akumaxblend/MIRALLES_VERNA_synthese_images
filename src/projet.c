@@ -77,26 +77,23 @@ void initActors(){
 
 }
 
-void drawUnlitScene(){
-
-	drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
-	drawBall(ball);	
-	drawGUI(ball);
-	drawBonus(bonus);
-
-	
+void drawUnlitScene()
+{
+    drawRacket(racket.width, racket.height, racket.racketx, racket.rackety, racket.racketz);
+    drawBall(ball);	
+    drawGUI(ball);
+    drawBonus(bonus);
 }
 
-void drawLitScene(){
-
+void drawLitScene()
+{
 	 //On active le lighting de la scene pour les sections et les obstacles uniquement
 	drawSections(10, sections, ball, racket);
 	drawObstacles(ot);
 }
 
-void initLighting(){
-
-	
+void initLighting()
+{
 	glLightfv(GL_LIGHT0, GL_POSITION, light_position_racket); 
 	glLightfv(GL_LIGHT1, GL_POSITION, light_position_ball);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0.3);
@@ -111,8 +108,8 @@ void initLighting(){
 	glShadeModel(GL_SMOOTH);
 }
 
-void updateLighting(Ball ball, Racket racket){
-
+void updateLighting(Ball ball, Racket racket)
+{
 	light_position_racket[0] = racket.racketx;
 	light_position_racket[1] = racket.rackety;
 	light_position_racket[2] = racket.racketz;
@@ -120,32 +117,29 @@ void updateLighting(Ball ball, Racket racket){
 	light_position_ball[0] = ball.x;
 	light_position_ball[1] = ball.y;
 	light_position_ball[2] = ball.z;
-
 }
 
-void testCollisions(){
-
+void testCollisions()
+{
 	obstaclesCollision(&ball, ot);
 	racketCollision(racket, &ball);
 	bonusCollision(&bonus, racket, &ball);
 }
 
-void translateActors(float time){
-
-
+void translateActors(float time)
+{
 	translateBall(&ball, ball.vx * animTime, ball.vy * animTime, ball.vz * animTime, 5, 2.5, 50);
 	translateRacket(&racket, -movingRacket * racketSpeed, &racketDist);
-	
 	if(!ball.isAlive){
 		translateBallOnRacket(&ball, racket);
 		speed = 0;
 		racketSpeed = 0;
 	}
-
 	translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
 	translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
 	translateBonus(&bonus, 2 * speed * animTime);
 }
+
 /* Error handling function */
 void onError(int error, const char* description)
 {
@@ -199,12 +193,10 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 			RacketY = (GL_VIEW_SIZE/2 - GL_VIEW_SIZE*RacketY/(float)WINDOW_HEIGHT)*(racketDist*tan(toRad(fov)/2.0));
             
         }
-
 }
 
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) 
+{
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         
 		if(movingRacket == -1){
@@ -220,7 +212,6 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		speed = SPEED;
 		racketSpeed = RACKET_SPEED;
 	}
-
 }
 
 int main(int argc, char** argv)

@@ -7,6 +7,7 @@
 #include <math.h>
 #include <time.h>
 #include "primitives.h"
+#include "physic.h"
 #include "3D_tools.h"
 #include "draw_scene.h"
 

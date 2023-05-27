@@ -174,18 +174,6 @@ void drawSections(int resolution, SectionsTab st, Ball b, Racket r){
 	}
 }
 
-void translateSections(SectionsTab * st, float d, int spawnLimit){
-
-	for(int i = 0; i < st->sectionNumber ; i ++){
-
-		st->tab[i].position += d;
-		if(st->tab[i].position > 50 && st->nb_spawned < spawnLimit){
-			st->tab[i].position = 50 - ((st->sectionNumber-1) * 15);
-			st->nb_spawned ++;
-		}
-	}
-}
-
 void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz, float r){
 
 	b->radius = r;
@@ -214,39 +202,6 @@ void drawBall(Ball b){
 
 }
 
-void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim, float zlim){
-
-	b->x += dx;
-	b->y += dy;
-	b->z += dz;
-
-	if(b->vx >0 && b->x +b->radius > xlim) b->vx *= -1;
-	if(b->vx <0 && b->x - b->radius < -xlim) b->vx *= -1;
-
-	if(b->vy > 0 && b->y + b->radius > ylim) b->vy *= -1;
-	if(b->vy < 0 && b->y -b->radius < -ylim) b->vy *= -1;
-
-	if(b->vz > 0 && b->z + b->radius > zlim - 20){
-
-		b->isAlive = false;
-		b->lives --;
-
-	} 
-	if(b->vz < 0 && b->z -b->radius < -zlim) b->vz *= -1;
-
-}
-
-void translateBallOnRacket(Ball * b, Racket r){
-
-	b->vx = 0;
-	b->vy = 0;
-	b->vz = 0;
-
-	b->x = r.racketx;
-	b->y = r.rackety;
-	b->z = r.racketz - 2*b->radius;
-}
-
 void initRacket(Racket * r, float w, float h, float x, float y, float z){
 
 	r->width = w;
@@ -267,45 +222,6 @@ void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim
 
 }
 
-void translateBonus(Bonus * b, float dz){
-
-	b->z += dz;
-	if(b->z > 26){
-		if(rand() % 2 == 0){
-			initBonus(b, "glue", -30, b->vz, 5, 2.5);
-		}
-		else initBonus(b, "life", -30, b->vz, 5, 2.5);
-	}
-}
-
-
-void translateRacket(Racket * r, float dz, float * extRacketPosition){
-
-	if(r->racketz < 25 && dz > 0){
-		r->racketz += dz;
-	}
-
-	if(r->racketz > 0 && dz < 0){
-		r->racketz += dz;
-	}
-
-	*extRacketPosition = 30 - r->racketz;
-}
-
-void racketCollision(Racket r, Ball * b){
-
-	if(b->vz > 0 && b->z + b->radius > r.racketz){
-
-		if(b->x + b->radius > (r.racketx - r.width/2) && b->x - b->radius < (r.racketx + r.width / 2) && b->y + b->radius > (r.rackety - r.height/2) && b->y - b->radius < (r.rackety + r.height/2)){
-
-			b->vz *= -1;
-
-			b->vx += (b->x - r.racketx) / (r.width /2) * 0.2;
-			b->vy += (b->y - r.rackety) / (r.height /2) * 0.2;
-		}
-	}
-}
-
 void initObstacle(Obstacle * o, float position, float xlim, float ylim){
 
 	o->height = (float)rand()/(float)(RAND_MAX/(xlim/4.0)) + ylim/4.0;
@@ -317,6 +233,17 @@ void initObstacle(Obstacle * o, float position, float xlim, float ylim){
 	o->z = position;
 }
 
+void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float ylim){
+
+	ot->nb = nb;
+	ot->nb_spawned = nb;
+	for(int i = 0; i <nb; i++){
+
+		Obstacle tmp;
+		ot->tab[i] = tmp;
+		initObstacle(&(ot->tab[i]), origin - i * 15, xlim, ylim);
+	}
+}
 void drawObstacle(Obstacle o){
 
 	//glDepthMask(false);
@@ -334,8 +261,8 @@ void drawObstacle(Obstacle o){
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textX, textY, 0, GL_RGBA, GL_UNSIGNED_BYTE, loaded);
 
 	glEnable(GL_TEXTURE_2D);
-	glColor4f(1.0,1.0,1.0,0.85);
-	GLfloat diffuse_vect[] = {1.0, 0.5, 0.8, 0.5};
+	glColor4f(1.0,1.0,1.0,0.95);
+	GLfloat diffuse_vect[] = {1.0, 1.0, 1.0, 0.8};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
     glBegin(GL_POLYGON);
 		glNormal3f(0.0, 0.0, 1.0);
@@ -359,68 +286,11 @@ void drawObstacle(Obstacle o){
 	//glDepthMask(true);
 }
 
-void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float ylim){
-
-	ot->nb = nb;
-	ot->nb_spawned = nb;
-	for(int i = 0; i <nb; i++){
-
-		Obstacle tmp;
-		ot->tab[i] = tmp;
-		initObstacle(&(ot->tab[i]), origin - i * 15, xlim, ylim);
-	}
-}
-
 void drawObstacles(ObstaclesTab ot){
 
 	for(int i = ot.nb-1; i>=0 ; i--){ //On dessine en décrémentant pour garder la transparence comme il faut
 
 		drawObstacle(ot.tab[i]);
-	}
-}
-
-void translateObstacle(Obstacle * o, float dz){
-
-	o->z += dz;
-}
-
-void translateObstacles(ObstaclesTab * ot, float dz, int maxSpawned){
-
-	for(int i = 0; i<ot->nb; i++){
-
-		if(ot->tab[i].z < 31){ //On translate si l'obstacle n'a pas atteint la camera
-
-			translateObstacle(&(ot->tab[i]), dz);
-		}
-
-		else if (ot->nb_spawned < maxSpawned){
-
-			for(int i = 0; i< ot->nb - 1; i++){
-
-				ot->tab[i] = ot->tab[i+1];
-			}
-
-			Obstacle tmp;
-
-			initObstacle(&tmp, 15 - ot->nb * 15, 10, 5);
-			ot->tab[ot->nb-1] = tmp;
-			ot->nb_spawned ++;
-		}
-	}
-}
-
-void obstaclesCollision(Ball * b, ObstaclesTab ot){
-
-	for(int i = 0 ; i <= ot.nb ; i++){
-
-		if(b->vz < 0 && b->z < ot.tab[i].z && ot.tab[i].z < 25){
-
-			if((b->x + b->radius > ot.tab[i].x - ot.tab[i].width/2) && (b->x - b->radius < ot.tab[i].x + ot.tab[i].width/2) && (b->y + b->radius > ot.tab[i].y - ot.tab[i].height/2) && (b->y - b->radius < ot.tab[i].y + ot.tab[i].height/2)){
-
-				b->vz *= -1;
-				break;
-			}
-		}
 	}
 }
 
@@ -455,27 +325,6 @@ void drawBonus(Bonus b){
 			glColor3f(1.0,1.0,1.0);
 			drawSphere();
 		glPopMatrix();
-	}
-}
-
-void bonusCollision(Bonus * bonus, Racket r, Ball * ball){
-
-	if(r.racketz > bonus->z - 1 && r.racketz < bonus->z + 1){
-
-		if(r.racketx + r.width / 2 > bonus->x - 1 && r.racketx - r.width / 2 < bonus->x + 1){
-
-			if(r.rackety + r.height / 2 > bonus->y - 1 && r.rackety - r.height / 2 < bonus->y + 1){
-
-				if(strcmp(bonus->type, "life") == 0) ball->lives ++;
-
-				else if (strcmp(bonus->type, "glue") == 0) ball->isAlive = false;
-
-				if(rand() % 2 == 0){
-					initBonus(bonus, "life", -30, bonus->vz, 5, 2.5);
-				}
-				else initBonus(bonus, "glue", -30, bonus->vz, 5, 2.5);
-			}
-		}
 	}
 }
 

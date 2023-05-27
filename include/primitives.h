@@ -94,9 +94,6 @@ void drawSections(int resolution, SectionsTab st, Ball b, Racket r);
 //Initialise les sections d'un tableau
 void initSectionsTab(SectionsTab * st, int sectionNumber);
 
-//Applique un déplacement d à toutes les sections d'un tableau
-void translateSections(SectionsTab * st, float d, int spawnLimit);
-
 //Initialise les sections en leur assignant largeur hauteur et profondeur ainsi que position
 void initSection(Section * s, float w, float h, float l, float p);
 
@@ -106,23 +103,11 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 //Dessine la balle
 void drawBall(Ball b);
 
-//Applique une translation sur la balle, sans que la balle ne puisse sortir des limites lim
-void translateBall(Ball * b, float dx, float dy, float dz, float xlim, float ylim, float zlim);
-
-//Fait coller la balle à la raquette au début et à la perte d'une vie ou récup bonus colle
-void translateBallOnRacket(Ball * b, Racket r);
-
 //Initialise la raquette 
 void initRacket(Racket * r, float w, float h, float x, float y, float z);
 
 //Initialise le bonus selon un type et des coordonnées aléatoires
 void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim);
-
-//Applique un déplacement sur la raquette
-void translateRacket(Racket * r, float dz, float * extRacketPosition);
-
-//Gere les collisions balle raquette
-void racketCollision(Racket r, Ball * b);
 
 //Initialise un obstacle selon une taille et une position aléatoire
 void initObstacle(Obstacle * o,float position, float xlim, float ylim);
@@ -136,15 +121,6 @@ void initObstaclesTab(ObstaclesTab * ot, int nb, float origin, float xlim, float
 //Dessine tous les obstacles d'un tableau
 void drawObstacles(ObstaclesTab ot);
 
-//Applique un déplacement dz sur l'obstacle, le faisant réapparaitre plus loin si il dépasse la caméra
-void translateObstacle(Obstacle * o, float dz);
-
-//Applique un déplacement dz sur tous les obstacles d'un tableau, en faisant réapparaître maximum maxSpawned fois les obstacles
-void translateObstacles(ObstaclesTab * ot, float dz,int maxSpawned);
-
-//Gere les collisions balle - obstacles
-void obstaclesCollision(Ball * b, ObstaclesTab ot);
-
 //Calcule la distance entre deux points (inutilisée pour le moment)
 float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 
@@ -153,11 +129,5 @@ void drawGUI(Ball b);
 
 //Dessine le bonus
 void drawBonus(Bonus b);
-
-//Applique un déplacement dz sur le bonus
-void translateBonus(Bonus * b, float dz);
-
-//Gere la collision bonus - raquette (bonus récupéré ou non)
-void bonusCollision(Bonus * bonus, Racket r, Ball * ball);
 
 #endif

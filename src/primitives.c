@@ -99,7 +99,7 @@ void drawSection(int resolution, float width, float height, float length, float 
 				glVertex3f(-width/2,-height/2 + (i+1) * height / resolution,position-(j+1)*length/resolution);
 				glNormal3f(1.0,0.0,0.0);
 				glVertex3f(-width/2,-height/2 + (i+1) * height / resolution,position-j*length/resolution);
-				glEnd();
+            glEnd();
         }		
     }
 	for(int i = 0 ; i < resolution ; i++){

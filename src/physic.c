@@ -7,8 +7,8 @@ void translateSections(SectionsTab * st, float d, int spawnLimit){
 	for(int i = 0; i < st->sectionNumber ; i ++){
 
 		st->tab[i].position += d;
-		if(st->tab[i].position > 50 && st->nb_spawned < spawnLimit){
-			st->tab[i].position = 50 - ((st->sectionNumber-1) * 15);
+		if(st->tab[i].position > 46 && st->nb_spawned < spawnLimit){
+			st->tab[i].position = 46 - ((st->sectionNumber-1) * st->tab[0].length);
 			st->nb_spawned ++;
 		}
 	}

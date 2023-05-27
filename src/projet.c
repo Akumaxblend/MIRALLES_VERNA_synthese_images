@@ -34,7 +34,7 @@ double RacketY = 0;
 int fov = 60;
 float racketDist = 5;
 int sectionNumber = 10;
-float speed = 0.1;
+float speed = SPEED;
 float racketSpeed = 1;
 int movingRacket = -1;
 
@@ -201,6 +201,7 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
         }
 
 }
+
 
 void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 

@@ -70,3 +70,61 @@ void drawOrigin(){
 
 	glEnd();
 }
+
+void drawCylinder()
+{
+	drawCircle();
+	glPushMatrix();
+		glTranslatef(0,0,1.0);
+		drawCircle();
+	glPopMatrix();
+	float step_rad = 2*M_PI/(float)NB_SEG_CIRCLE;
+	for(int i = 0; i< NB_SEG_CIRCLE; i++)
+	{
+		glBegin(GL_POLYGON);
+		glVertex3f(cos(i*step_rad), sin(i*step_rad),0);
+		glVertex3f(cos(i*step_rad), sin(i*step_rad),1);
+		glVertex3f(cos((i+1)*step_rad), sin((i+1)*step_rad),1);
+		glVertex3f(cos((i+1)*step_rad), sin((i+1)*step_rad),0);
+		glEnd();
+	}
+}
+
+void drawGlue()
+{
+	glPushMatrix();
+		glRotatef(90, -1.0,0,0.3);
+		glColor3f(1.0,1.0,1.0);
+		drawCylinder();
+		glPushMatrix();
+			glTranslatef(0,0,1.0);
+			glScalef(0.9,0.9,4.0);
+			glColor3f(1.0,1.0,0);
+			drawCylinder();
+		glPopMatrix();
+		glPushMatrix();
+			glTranslatef(0,0,5.0);
+			glScalef(1.0,1.0,0.5);
+			glColor3f(1.0,1.0,1.0);
+			drawCylinder();
+		glPopMatrix();		
+	glPopMatrix();
+}
+
+void drawLife()
+{
+	glColor3f(1.0,1.0,1.0);
+	drawCylinder();
+	glPushMatrix();
+		glTranslatef(0,0,1.01);
+		glPushMatrix();
+			glScalef(0.3,0.9,1.0);
+			glColor3f(0,1.0,0);
+			drawSquare();
+		glPopMatrix();
+		glPushMatrix();
+			glScalef(0.9,0.3,1.0);
+			drawSquare();
+		glPopMatrix();
+	glPopMatrix();
+}

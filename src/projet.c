@@ -275,14 +275,12 @@ int main(int argc, char** argv)
 		glLoadIdentity();
 		setCamera();	
 		
-		
 		/* Scene rendering */
 		
 		glDisable(GL_LIGHTING);
 		drawUnlitScene();
 		glEnable(GL_LIGHTING);
 		drawLitScene();
-		
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);

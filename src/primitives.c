@@ -278,17 +278,15 @@ void drawBonus(Bonus b)
 	if(strcmp(b.type, "life") == 0){
 		glPushMatrix();
 			glTranslatef(b.x, b.y, b.z);
-			glScalef(0.15,0.15,0.15);
-			glColor3f(0,1.0,0);
-			drawSphere();
+			glScalef(0.3,0.3,0.3);
+			drawLife();
 		glPopMatrix();
 	}
 	else if (strcmp(b.type, "glue") == 0){
 		glPushMatrix();
 			glTranslatef(b.x, b.y, b.z);
 			glScalef(0.15,0.15,0.15);
-			glColor3f(1.0,1.0,1.0);
-			drawSphere();
+			drawGlue();
 		glPopMatrix();
 	}
 }

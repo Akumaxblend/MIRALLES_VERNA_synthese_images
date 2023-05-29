@@ -75,6 +75,24 @@ typedef struct str_bonus
     float vz;
 }Bonus;
 
+typedef struct str_button
+{
+    float height;
+    float width;
+    float x;
+    float y;
+    float r, g, b;
+}Button;
+
+typedef struct str_menu
+{
+    float width;
+    float height;
+    Button play;
+    Button quit;
+    bool on;
+}Menu;
+
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 //Dessine une section selon les paramètres
@@ -107,5 +125,10 @@ float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 void drawGUI(Ball b);
 //Dessine le bonus
 void drawBonus(Bonus b);
+void initMenu(Menu *menu, float width, float height);
+void drawMenu(Menu menu);
+void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b);
+void drawButton(Button button);
+bool inButton(Button button, float x, float y);
 
 #endif

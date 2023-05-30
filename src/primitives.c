@@ -290,3 +290,55 @@ void drawBonus(Bonus b)
 		glPopMatrix();
 	}
 }
+
+void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b)
+{
+    button->x = x;
+    button->y = y;
+    button->height = height;
+    button->width = width;
+    button->r = r;
+    button->g = g;
+    button->b = b;
+}
+
+void drawButton(Button b)
+{
+    glBegin(GL_POLYGON);
+        glColor3f(b.r,b.g,b.b);
+        glVertex2f(b.x - b.width/2, b.y - b.height/2);
+        glVertex2f(b.x - b.width/2, b.y + b.height/2);
+        glVertex2f(b.x + b.width/2, b.y + b.height/2);
+        glVertex2f(b.x + b.width/2, b.y - b.height/2);
+    glEnd();
+}
+
+bool inButton(Button button, float x, float y)
+{
+    float x_haut_gauche = button.x - button.width/2;
+    float x_haut_droite = button.x + button.width/2;
+    float y_haut_gauche = button.y + button.height/2;
+    float y_bas_gauche = button.y - button.height/2;
+    return x >= x_haut_gauche && x <= x_haut_droite && y <= y_haut_gauche && y >= y_bas_gauche;
+}
+
+void initMenu(Menu *menu, float width, float height)
+{
+    menu->width = width;
+    menu->height = height;
+    initButton(&(menu->play),0,5,5,5,0,1,0);
+    initButton(&(menu->quit),0,-5,5,5,1,0,0);
+}
+
+void drawMenu(Menu menu)
+{
+    glBegin(GL_POLYGON);
+        glColor3f(1.0, 1.0, 1.0);
+        glVertex2f(-menu.width/2,-menu.height/2);
+        glVertex2f(-menu.width/2,menu.height/2);
+        glVertex2f(menu.width/2,menu.height/2);
+        glVertex2f(menu.width/2,-menu.height/2);
+    glEnd();
+    drawButton(menu.play);
+    drawButton(menu.quit);
+}

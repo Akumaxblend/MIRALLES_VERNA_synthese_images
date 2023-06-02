@@ -43,6 +43,7 @@ typedef struct str_racket
     float racketx;
     float rackety;
     float racketz;
+
 }Racket;
 
 typedef struct str_obstacle
@@ -93,42 +94,53 @@ typedef struct str_menu
     bool on;
 }Menu;
 
+typedef struct str_game
+{
+    Ball ball;
+    Racket racket;
+    Menu menu_debut;
+    Menu menu_fin;
+    SectionsTab sections;
+    ObstaclesTab ot;
+    Bonus bonus;
+}Game;
+
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
 void drawRacket(float width, float height, double RacketX, double RacketY, float d);
 //Dessine une section selon les paramètres
-void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r);
+void drawSection(int resolution, float width, float height, float length, float position/*, Ball b, Racket r*/);
 //Dessine l'ensemble des sections d'un tableau 
-void drawSections(int resolution, SectionsTab st, Ball b, Racket r);
+void drawSections(int resolution, SectionsTab *st/*, Ball b, Racket r*/);
 //Initialise les sections d'un tableau
-void initSectionsTab(SectionsTab * st, int sectionNumber);
+void initSectionsTab(SectionsTab *st/*, int sectionNumber*/);
 //Initialise les sections en leur assignant largeur hauteur et profondeur ainsi que position
-void initSection(Section * s, float w, float h, float l, float p);
+void initSection(Section *s, float w, float h, float l, float p);
 //Initialise la balle avec une certaine vitesse, position, etc
-void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz, float r);
+void initBall(Ball *b, float x, float y, float z, float vx, float vy, float vz, float r);
 //Dessine la balle
-void drawBall(Ball b);
+void drawBall(Ball *b);
 //Initialise la raquette 
-void initRacket(Racket * r, float w, float h, float x, float y, float z);
+void initRacket(Racket *r, float w, float h, float z);
 //Initialise le bonus selon un type et des coordonnées aléatoires
-void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim);
+void initBonus(Bonus *b, char * type, float z, float vz, float xlim, float ylim);
 //Initialise un obstacle selon une taille et une position aléatoire
-void initObstacle(Obstacle * o,float position, float xlim, float ylim);
+void initObstacle(Obstacle *o, float position, float xlim, float ylim);
 //Dessine un obstacle textué ;)
-void drawObstacle(Obstacle o);
+void drawObstacle(Obstacle *o);
 //Initialise les nb premiers ostacles d'un tableau
-void initObstaclesTab(ObstaclesTab * ot, int nb, float origin, float xlim, float ylim);
+void initObstaclesTab(ObstaclesTab *ot, int nb, float origin, float xlim, float ylim);
 //Dessine tous les obstacles d'un tableau
-void drawObstacles(ObstaclesTab ot);
+void drawObstacles(ObstaclesTab *ot);
 //Calcule la distance entre deux points (inutilisée pour le moment)
 float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 //Affiche à l'écran le nombre de vies de la balle 
-void drawGUI(Ball b);
+void drawGUI(Ball *b);
 //Dessine le bonus
-void drawBonus(Bonus b);
+void drawBonus(Bonus *b);
 void initMenu(Menu *menu, float width, float height);
-void drawMenu(Menu menu);
+void drawMenu(Menu *menu);
 void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b);
-void drawButton(Button button);
-bool inButton(Button button, float x, float y);
+void drawButton(Button *button);
+bool inButton(Button *button, float x, float y);
 
 #endif

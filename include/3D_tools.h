@@ -29,5 +29,11 @@ void drawSphere();
 
 void drawOrigin();
 
+void drawCylinder();
+
+void drawGlue();
+
+void drawLife();
+
 /* Small tools */
 float toRad(float deg);

@@ -12,7 +12,7 @@
 
 #define SPEED 0.3
 #define MAX_SECTION_NUMBER 20
-#define RACKET_SPEED 1
+#define RACKET_SPEED 0.3
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 900;
@@ -170,7 +170,8 @@ void testCollisions()
 void translateActors(float time)
 {
 	translateBall(&ball, ball.vx * animTime, ball.vy * animTime, ball.vz * animTime, 5, 2.5, 50);
-	translateRacket(&racket, -movingRacket * racketSpeed, &racketDist);
+	if(racketWillCollide(&racket, &ot)) movingRacket = 1;
+	translateRacket(&racket, movingRacket * racketSpeed, &racketDist);
 	if(!ball.isAlive){
 		translateBallOnRacket(&ball, racket);
 		speed = 0;
@@ -269,11 +270,11 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         
-		if(movingRacket == -1){
-			movingRacket = 1;
+		if(movingRacket == 1 && !racketWillCollide(&racket, &ot)){
+			movingRacket = -1;
 		}
     }
-	else movingRacket = -1;
+	else movingRacket = 1;
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !ball.isAlive && !menu_debut.on){
 

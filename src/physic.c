@@ -41,7 +41,7 @@ void translateBallOnRacket(Ball * b, Racket r)
 
 void translateRacket(Racket * r, float dz, float * extRacketPosition)
 {
-    if(r->racketz < 25 && dz > 0){
+    if(r->racketz < 35 && dz > 0){
 		r->racketz += dz;
 	}
 	if(r->racketz > 0 && dz < 0){
@@ -121,4 +121,15 @@ void translateBonus(Bonus * b, float dz)
             }
             else initBonus(b, "life", -30, b->vz, 5, 2.5);
 	}
+}
+
+bool racketWillCollide(Racket * r, ObstaclesTab * ot)
+{
+	for(int i = 0 ; i <= ot->nb ; i++){
+		if((r->racketz - 1 < ot->tab[i].z) /*&& (r->racketz + r->height/5.0 > ot->tab[i].z)*/){
+            if((r->racketx + r->width/2 > ot->tab[i].x - ot->tab[i].width/2) && (r->racketx - r->width/2 < ot->tab[i].x + ot->tab[i].width/2) && (r->rackety + r->width/2 > ot->tab[i].y - ot->tab[i].height/2) && (r->rackety - r->width/2 < ot->tab[i].y + ot->tab[i].height/2)){
+				return true;
+			}
+		}
+	}return false;
 }

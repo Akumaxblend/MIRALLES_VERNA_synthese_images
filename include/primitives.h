@@ -81,7 +81,7 @@ typedef struct str_button
     float width;
     float x;
     float y;
-    float r, g, b;
+    char * type; //"images/jouer.jpg" ou "images/quitter.jpg" : le chemin de la texture à appliquer
 }Button;
 
 typedef struct str_menu
@@ -91,6 +91,7 @@ typedef struct str_menu
     Button play;
     Button quit;
     bool on;
+    char * type; //"debut" ou "fin_victoire" ou "fin_defaite"
 }Menu;
 
 //Dessine un carré de largeur width et de hauteur height, centré en (RacketX, RacketY)
@@ -113,7 +114,7 @@ void initRacket(Racket * r, float w, float h, float x, float y, float z);
 void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim);
 //Initialise un obstacle selon une taille et une position aléatoire
 void initObstacle(Obstacle * o,float position, float xlim, float ylim);
-//Dessine un obstacle textué ;)
+//Dessine un obstacle textué 
 void drawObstacle(Obstacle o);
 //Initialise les nb premiers ostacles d'un tableau
 void initObstaclesTab(ObstaclesTab * ot, int nb, float origin, float xlim, float ylim);
@@ -125,10 +126,11 @@ float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 void drawGUI(Ball b);
 //Dessine le bonus
 void drawBonus(Bonus b);
-void initMenu(Menu *menu, float width, float height);
+void initMenu(Menu *menu, float width, float height, char * type); //Le char * type permet de spécifier s'il s'agit d'un menu de départ, de défaite ou de victoire
 void drawMenu(Menu menu);
-void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b);
+void initButton(Button *button, float x, float y, float height, float width, char * type); //Le char * type permet de spécifier la texture à appliquer sur le bouton
 void drawButton(Button button);
 bool inButton(Button button, float x, float y);
+void drawEnd(Obstacle * o); //Affiche l'écriteau de fin
 
 #endif

@@ -11,14 +11,14 @@
 #include "physic.h"
 
 #define SPEED 0.3
-#define MAX_SECTION_NUMBER 20
+#define MAX_SECTION_NUMBER 10
 #define RACKET_SPEED 0.3
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 900;
 static unsigned int WINDOW_HEIGHT = 500;
 
-static const char WINDOW_TITLE[] = "Super projet Mirale Vernat";
+static const char WINDOW_TITLE[] = "The IMAC light corridor - MIRALLES VERNA";
 static float aspectRatio = 1.0;
 
 /* Minimal time wanted between two images */
@@ -28,6 +28,7 @@ Ball ball;
 SectionsTab sections;
 Racket racket;
 Bonus bonus;
+Obstacle boss; //Le paneau de fin : il a la classe obstacle mais ne sert que de trigger avec la raquette
 ObstaclesTab ot;
 Menu menu_debut;
 Menu menu_fin;
@@ -106,6 +107,7 @@ void initActors()
 	srand(time(NULL));
 	//initialisation de la balle
 	initBall(&ball, 0, 0, 0, 0.0, 0.0, 0.0, 0.25);
+	ball.isAlive = false;
 	//initialisation des sections
 	initSectionsTab(&sections, sectionNumber);
 	//initialisation de la raquette 
@@ -114,12 +116,15 @@ void initActors()
 	initBonus(&bonus, "life", 20, speed, 5, 2.5);
 	//initialisation des obstacles
 	initObstaclesTab(&ot, 10, 15, 10, 5);
+	initObstacle(&boss, 46-MAX_SECTION_NUMBER*15 - 10 * 15, 0.01,0.01); //On initialise le boss à la distance voulue pour la victoire
+	boss.width = 10; //On se débarasse du facteur aléatoire généré par l'initialisation
+	boss.height = 5;
     //attention les dimensions des menus sont à revoir car beaucoup trop grandes si on veut y mettre des textures
     //initialisation du menu de debut
-    initMenu(&menu_debut, 30, 25);
+    initMenu(&menu_debut, 100, 100, "debut");
     menu_debut.on = true;
     //initialisation du menu de fin
-    initMenu(&menu_fin, 30, 25);
+    initMenu(&menu_fin, 100, 100, "fin_defaite");
     menu_fin.on = false;
 }
 
@@ -170,7 +175,7 @@ void testCollisions()
 void translateActors(float time)
 {
 	translateBall(&ball, ball.vx * animTime, ball.vy * animTime, ball.vz * animTime, 5, 2.5, 50);
-	if(racketWillCollide(&racket, &ot)) movingRacket = 1;
+	if(racketWillCollide(&racket, &ot)) movingRacket = 1; //On teste si la raquette va entrer en collision avec un mur ; si oui, alors on la force à reculer. Sinon, elle avance
 	translateRacket(&racket, movingRacket * racketSpeed, &racketDist);
 	if(!ball.isAlive){
 		translateBallOnRacket(&ball, racket);
@@ -179,15 +184,16 @@ void translateActors(float time)
 	}
 	translateSections(&sections, animTime * speed, MAX_SECTION_NUMBER);
 	translateObstacles(&ot, animTime*speed, MAX_SECTION_NUMBER);
+	translateObstacle(&boss, animTime*speed); //Puisque le boss (écriteau de fin) n'est pas inclu dans le tableau d'obstacles on le bouge indépendament
 	translateBonus(&bonus, 2 * speed * animTime);
 }
 
 void getCoords(double *x, double *y, double dist) {
-    if (aspectRatio < 1) {
+    if (aspectRatio < 1 && dist > 0) {
         *x = (GL_VIEW_SIZE*(*x)/(float)WINDOW_WIDTH - GL_VIEW_SIZE/2)*(dist*tan(toRad(fov)/2.0));
         *y = ((GL_VIEW_SIZE/2 - GL_VIEW_SIZE*(*y)/(float)WINDOW_HEIGHT)/aspectRatio)*(dist*tan(toRad(fov)/2.0));
     }
-    else {
+    else if (dist > 0) {
         *x = ((GL_VIEW_SIZE*(*x)/(float)WINDOW_WIDTH - GL_VIEW_SIZE/2)*aspectRatio)*(dist*tan(toRad(fov)/2.0));
         *y = (GL_VIEW_SIZE/2 - GL_VIEW_SIZE*(*y)/(float)WINDOW_HEIGHT)*(dist*tan(toRad(fov)/2.0));
     }
@@ -205,6 +211,7 @@ void drawUnlitScene()
     drawBall(ball);	
     drawGUI(ball);
     drawBonus(bonus);
+	drawEnd(&boss); //L'ecriteau de fin, dessiné sans lumière pour avoir un rendu uni
 }
 
 void drawLitScene()
@@ -224,12 +231,13 @@ void drawGame()
 
 void replayGame()
 {
+	racketDist = 5; //On réinitialise la distance à la camera, sinon on respawn là où on s'était arreté
     initActors();
     menu_debut.on = false;
     initLighting();
+	updateRacket(&racket);
     //On met à jour la position du lighting
     updateLighting(ball, racket);
-    updateRacket(&racket);
     drawGame();
     testCollisions();
     translateActors(animTime);
@@ -270,8 +278,8 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         
-		if(movingRacket == 1 && !racketWillCollide(&racket, &ot)){
-			movingRacket = -1;
+		if(movingRacket == 1){
+			movingRacket = -2; //Facteur d'inversion de la vitesse : la raquette avance 2 fois plus vite qu'elle ne recule (l'axe de la profondeur est orienté vers nous)
 		}
     }
 	else movingRacket = 1;
@@ -379,6 +387,11 @@ int main(int argc, char** argv)
             menu_fin.on = true;
             focus = 1;
         }
+		if(victory(&racket, &boss)){ //Si la raquette dépasse la position de l'écriteau de fin alors c'est gagné ! 
+			menu_fin.type = "fin_victoire"; //On change le type du menu pour qu'il affiche "gagné"
+			menu_fin.on = true;
+			focus = 1;
+		}
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
@@ -392,7 +405,7 @@ int main(int argc, char** argv)
 		/* If to few time is spend vs our wanted FPS, we wait */
 		if(elapsedTime < FRAMERATE_IN_SECONDS)
 		{
-			//glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS-elapsedTime);
+			glfwWaitEventsTimeout(FRAMERATE_IN_SECONDS-elapsedTime);
 		}
 
 		/* Animate scenery */

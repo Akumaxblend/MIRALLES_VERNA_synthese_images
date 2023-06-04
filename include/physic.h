@@ -24,5 +24,7 @@ void bonusCollision(Bonus * bonus, Racket r, Ball * ball);
 void translateBonus(Bonus * b, float dz);
 //Verifie si la raquette entrera en collision avec un obstacle
 bool racketWillCollide(Racket * r, ObstaclesTab * ot);
+//Vérifie si la condition de victoire est atteinte
+bool victory(Racket * r, Obstacle * boss);
 
 #endif

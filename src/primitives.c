@@ -230,7 +230,7 @@ void drawObstacle(Obstacle o)
 
 	glEnable(GL_TEXTURE_2D);
 	glColor4f(1.0,1.0,1.0,0.95);
-	GLfloat diffuse_vect[] = {1.0, 1.0, 1.0, 0.8};
+	GLfloat diffuse_vect[] = {5.0, 5.0, 5.0, 0.8};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
     glBegin(GL_POLYGON);
 		glNormal3f(0.0, 0.0, 1.0);
@@ -291,26 +291,44 @@ void drawBonus(Bonus b)
 	}
 }
 
-void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b)
+void initButton(Button *button, float x, float y, float height, float width, char * type)
 {
     button->x = x;
     button->y = y;
     button->height = height;
     button->width = width;
-    button->r = r;
-    button->g = g;
-    button->b = b;
+    button->type = type;
 }
 
 void drawButton(Button b)
 {
+	int textX = 0;
+	int textY = 0;
+	int textN = 0;
+
+	unsigned char* loaded;
+	loaded = stbi_load(b.type,&textX, &textY, &textN, 0);// Le parametre b.type est directement un char * contenant le chemin d'accès à la texture affiché
+	GLuint texture_walls;
+	glGenTextures(1, &texture_walls);
+	glBindTexture(GL_TEXTURE_2D, texture_walls);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textX, textY, 0, GL_RGB, GL_UNSIGNED_BYTE, loaded);
+	glEnable(GL_TEXTURE_2D);
     glBegin(GL_POLYGON);
-        glColor3f(b.r,b.g,b.b);
+        glColor3f(1.0,1.0,1.0);
+		glTexCoord2f(0,1);
         glVertex2f(b.x - b.width/2, b.y - b.height/2);
+		glTexCoord2f(0,0);
         glVertex2f(b.x - b.width/2, b.y + b.height/2);
+		glTexCoord2f(1,0);
         glVertex2f(b.x + b.width/2, b.y + b.height/2);
+		glTexCoord2f(1,1);
         glVertex2f(b.x + b.width/2, b.y - b.height/2);
     glEnd();
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(1, &texture_walls);
+	stbi_image_free(loaded);
 }
 
 bool inButton(Button button, float x, float y)
@@ -322,18 +340,29 @@ bool inButton(Button button, float x, float y)
     return x >= x_haut_gauche && x <= x_haut_droite && y <= y_haut_gauche && y >= y_bas_gauche;
 }
 
-void initMenu(Menu *menu, float width, float height)
+void initMenu(Menu *menu, float width, float height, char * type)
 {
     menu->width = width;
     menu->height = height;
-    initButton(&(menu->play),0,5,5,5,0,1,0);
-    initButton(&(menu->quit),0,-5,5,5,1,0,0);
+	if(strcmp(type, "debut") == 0){ //Les boutons du début de partie sont plus gros et pas disposés de la même manière que les menus de fin
+		initButton(&(menu->play),0,7,10,20,"images/jouer.jpg");
+    	initButton(&(menu->quit),0,-7,10,20,"images/quitter.jpg");
+	}
+	else{
+		initButton(&(menu->play),0,-3,5,10,"images/jouer.jpg");
+    	initButton(&(menu->quit),0,-10,5,10,"images/quitter.jpg");
+	}
+    menu->type = type;
 }
 
 void drawMenu(Menu menu)
 {
-    glBegin(GL_POLYGON);
-        glColor3f(1.0, 1.0, 1.0);
+	int textX = 0;
+	int textY = 0;
+	int textN = 0;
+
+    glBegin(GL_POLYGON); // La partie commune à tous les menus
+        glColor3f(0.1, 0.1, 0.1);
         glVertex2f(-menu.width/2,-menu.height/2);
         glVertex2f(-menu.width/2,menu.height/2);
         glVertex2f(menu.width/2,menu.height/2);
@@ -341,4 +370,69 @@ void drawMenu(Menu menu)
     glEnd();
     drawButton(menu.play);
     drawButton(menu.quit);
+
+	if(strcmp(menu.type, "debut") != 0){ //On ne dessine "Gagné" ou "perdu" que si il ne s'agit pas d'un menu de début de partie
+		unsigned char* loaded;
+		if(strcmp(menu.type, "fin_victoire") == 0) loaded = stbi_load("images/gagne.jpg",&textX, &textY, &textN, 0);
+		else if(strcmp(menu.type, "fin_defaite") == 0) loaded = stbi_load("images/perdu.jpg",&textX, &textY, &textN, 0);
+		else return;
+		GLuint texture_walls;
+		glGenTextures(1, &texture_walls);
+		glBindTexture(GL_TEXTURE_2D, texture_walls);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textX, textY, 0, GL_RGB, GL_UNSIGNED_BYTE, loaded);
+		glEnable(GL_TEXTURE_2D);
+		glBegin(GL_POLYGON);
+			glColor3f(1.0,1.0,1.0);
+			glTexCoord2f(0,1);
+			glVertex2f(0 - 10, 10 - 5);
+			glTexCoord2f(0,0);
+			glVertex2f(0 - 10, 10 + 5);
+			glTexCoord2f(1,0);
+			glVertex2f(0 + 10, 10 + 5);
+			glTexCoord2f(1,1);
+			glVertex2f(0 + 10, 10 - 5);
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDeleteTextures(1, &texture_walls);
+		stbi_image_free(loaded);
+	}
+}
+
+void drawEnd(Obstacle * o)
+{
+	int textX = 0;
+	int textY = 0;
+	int textN = 0;
+
+	unsigned char* loaded;
+	loaded = stbi_load("images/arrivee.jpg",&textX, &textY, &textN, 0);
+	GLuint texture_walls;
+	glGenTextures(1, &texture_walls);
+	glBindTexture(GL_TEXTURE_2D, texture_walls);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, textX, textY, 0, GL_RGB, GL_UNSIGNED_BYTE, loaded);
+
+	glEnable(GL_TEXTURE_2D);
+	glColor4f(1.0,1.0,1.0,1.0);
+    glBegin(GL_POLYGON);
+		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(0,1);
+		glVertex3f(o->x - o->width/2, o->y - o->height/2, o->z);
+		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(1,1);
+		glVertex3f(o->x + o->width/2, o->y - o->height/2, o->z);
+		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(1.0,0);
+		glVertex3f(o->x + o->width/2, o->y + o->height/2, o->z);
+		glNormal3f(0.0, 0.0, 1.0);
+		glTexCoord2f(0,0);
+		glVertex3f(o->x - o->width/2, o->y + o->height/2, o->z);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDeleteTextures(1, &texture_walls);
+	stbi_image_free(loaded);
 }

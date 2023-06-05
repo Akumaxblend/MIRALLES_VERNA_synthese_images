@@ -8,8 +8,8 @@
 #include "draw_scene.h"
 #include "init.h"
 #include "draws.h"
-#define SPEED 0.3
-#define RACKET_SPEED 1
+#define SPEED 0.1
+#define RACKET_SPEED 0.03 
 
 /* Window properties */
 static unsigned int WINDOW_WIDTH = 900;
@@ -31,7 +31,7 @@ double RacketY = 0;
 float racketDist = 5;
 float speed = SPEED;
 int movingRacket = -1;
-float racketSpeed = 1;
+float racketSpeed = RACKET_SPEED;
 float animTime = 1;
 int fov = 60;
 static int focus = 0;
@@ -107,11 +107,11 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
         
-		if(movingRacket == -1){
-			movingRacket = 1;
+		if(movingRacket == 1){
+			movingRacket = -2;
 		}
     }
-	else movingRacket = -1;
+	else movingRacket = 1;
 
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && !game.ball.isAlive && !game.menu_debut.on){
 
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
 	glPointSize(5.0);
 
 	//On initialise les acteurs déclarés plus tôt
-	initActors(&game, speed);
+	initActors(&game, speed, racketDist);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -194,6 +194,7 @@ int main(int argc, char** argv)
             case 0 : 
                 glDisable(GL_LIGHTING);
                 drawMenu(&game.menu_debut);
+                drawZero();
                 break;
             case 1 :
                 glDisable(GL_LIGHTING);
@@ -217,6 +218,11 @@ int main(int argc, char** argv)
             game.menu_fin.on = true;
             focus = 1;
         }
+        if(victory(&game.racket, &game.boss)){ //Si la raquette dépasse la position de l'écriteau de fin alors c'est gagné ! 
+			game.menu_fin.type = "fin_victoire"; //On change le type du menu pour qu'il affiche "gagné"
+			game.menu_fin.on = true;
+			focus = 1;
+		}
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 

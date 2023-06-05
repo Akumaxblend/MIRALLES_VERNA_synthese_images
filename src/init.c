@@ -1,6 +1,6 @@
 #include "init.h"
 
-void initActors(Game *game, float speed)
+void initActors(Game *game, float speed, float racketDist)
 {
 	//Random seed initialisation
 	srand(time(NULL));
@@ -9,17 +9,20 @@ void initActors(Game *game, float speed)
 	//initialisation des sections
 	initSectionsTab(&game->sections);
 	//initialisation de la raquette 
-	initRacket(&(game->racket), 1, 1, 25);
+	initRacket(&(game->racket), 1, 1, 30 - racketDist);
 	//initialisation du bonus
 	initBonus(&game->bonus, "life", 20, speed, 5, 2.5);
 	//initialisation des obstacles
 	initObstaclesTab(&game->ot, 10, 15, 10, 5);
+    initObstacle(&game->boss, 46-MAX_SECTION_NUMBER*15, 0.01,0.01);
+    game->boss.width = 10;
+    game->boss.height = 5;
     //attention les dimensions des menus sont à revoir car beaucoup trop grandes si on veut y mettre des textures
     //initialisation du menu de debut
-    initMenu(&game->menu_debut, 30, 25);
+    initMenu(&game->menu_debut, 100, 100, "debut");
     game->menu_debut.on = true;
     //initialisation du menu de fin
-    initMenu(&game->menu_fin, 30, 25);
+    initMenu(&game->menu_fin, 100, 100, "fin_defaite");
     game->menu_fin.on = false;
 }
 
@@ -70,7 +73,8 @@ void updateRacket(Racket *racket, double RacketX, double RacketY)
 void translateActors(Game *game, float time, int movingRacket, float *racketDist, float speed, float racketSpeed)
 {
 	translateBall(&game->ball, game->ball.vx * time, game->ball.vy * time, game->ball.vz * time, 5, 2.5, 50);
-	translateRacket(&game->racket, -movingRacket * racketSpeed, racketDist);
+    if(racketWillCollide(&game->racket, &game->ot)) movingRacket = 1;
+	translateRacket(&game->racket, movingRacket * racketSpeed, racketDist);
 	if(!game->ball.isAlive){
 		translateBallOnRacket(&game->ball, &game->racket);
 		speed = 0;
@@ -78,12 +82,14 @@ void translateActors(Game *game, float time, int movingRacket, float *racketDist
 	}
 	translateSections(&game->sections, time * speed, MAX_SECTION_NUMBER);
 	translateObstacles(&game->ot, time*speed, MAX_SECTION_NUMBER);
+    translateObstacle(&game->boss, time*speed);
 	translateBonus(&game->bonus, 2 * speed * time);
 }
 
 void replayGame(Game *game, GLfloat *light_position_racket, GLfloat *light_position_ball, GLfloat *light_color_racket, GLfloat *light_color_ball, float time, int movingRacket, float *racketDist, float speed, double RacketX, double RacketY, float racketSpeed)
 {
-    initActors(game, speed);
+    *racketDist = 5;//à voir si c'est utile dans cette version
+    initActors(game, speed, *racketDist);
     game->menu_debut.on = false;
     initLighting(light_position_racket, light_position_ball, light_color_racket, light_color_ball);
     //On met à jour la position du lighting

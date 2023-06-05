@@ -83,6 +83,7 @@ typedef struct str_button
     float x;
     float y;
     float r, g, b;
+    char *type;
 }Button;
 
 typedef struct str_menu
@@ -92,6 +93,7 @@ typedef struct str_menu
     Button play;
     Button quit;
     bool on;
+    char *type;
 }Menu;
 
 typedef struct str_game
@@ -102,6 +104,7 @@ typedef struct str_game
     Menu menu_fin;
     SectionsTab sections;
     ObstaclesTab ot;
+    Obstacle boss;
     Bonus bonus;
 }Game;
 
@@ -137,10 +140,11 @@ float calculateDist(float x1,float y1,float z1,float x2,float y2,float z2);
 void drawGUI(Ball *b);
 //Dessine le bonus
 void drawBonus(Bonus *b);
-void initMenu(Menu *menu, float width, float height);
+void initMenu(Menu *menu, float width, float height, char *type);
 void drawMenu(Menu *menu);
-void initButton(Button *button, float x, float y, float height, float width, float r, float g, float b);
+void initButton(Button *button, float x, float y, float height, float width, char *type);
 void drawButton(Button *button);
 bool inButton(Button *button, float x, float y);
+void drawEnd(Obstacle *o);
 
 #endif

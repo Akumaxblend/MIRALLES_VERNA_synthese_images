@@ -1,12 +1,12 @@
 #include "draws.h"
 
-
 void drawUnlitScene(Game *game)
 {
     drawRacket(game->racket.width, game->racket.height, game->racket.racketx, game->racket.rackety, game->racket.racketz);
     drawBall(&game->ball);	
     drawGUI(&game->ball);
     drawBonus(&game->bonus);
+    drawEnd(&game->boss);
 }
 
 void drawLitScene(Game *game)
@@ -23,5 +23,3 @@ void drawGame(Game *game)
     glEnable(GL_LIGHTING);
     drawLitScene(game);
 }
-
-

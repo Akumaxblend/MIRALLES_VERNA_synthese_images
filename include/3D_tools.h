@@ -35,5 +35,19 @@ void drawGlue();
 
 void drawLife();
 
+void drawRectangle(const float scale_h, const float scale_w);
+
+void drawZero();
+void drawOne();
+void drawTwo();
+void drawThree();
+void drawFour();
+void drawFive();
+void drawSix();
+void drawSeven();
+void drawEight();
+void drawNine();
+
+void drawNumber(const int n);
 /* Small tools */
 float toRad(float deg);

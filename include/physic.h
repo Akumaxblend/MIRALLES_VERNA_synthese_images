@@ -23,5 +23,7 @@ void obstaclesCollision(Ball * b, ObstaclesTab *ot);
 void bonusCollision(Bonus * bonus, Racket *r, Ball * ball);
 //Applique un déplacement dz sur le bonus
 void translateBonus(Bonus * b, float dz);
+bool racketWillCollide(Racket *r, ObstaclesTab *ot);
+bool victory(Racket *r, Obstacle *boss);
 
 #endif

@@ -41,10 +41,10 @@ void translateBallOnRacket(Ball * b, Racket *r)
 
 void translateRacket(Racket * r, float dz, float * extRacketPosition)
 {
-    if(r->racketz < 25 && dz > 0){
+    if(r->racketz < 31 && dz > 0){
 		r->racketz += dz;
 	}
-	if(r->racketz > 0 && dz < 0){
+	if(dz < 0){
 		r->racketz += dz;
 	}
 	*extRacketPosition = 30 - r->racketz;
@@ -121,4 +121,21 @@ void translateBonus(Bonus * b, float dz)
             }
             else initBonus(b, "life", -30, b->vz, 5, 2.5);
 	}
+}
+
+bool racketWillCollide(Racket *r, ObstaclesTab *ot)// Fonction vérifiant si la raquette est suffisament proche d'un obstacle qui l'empecherait éventuellement d'avancer
+{
+	for(int i = 0 ; i <= ot->nb ; i++){
+		if((r->racketz - 1 < ot->tab[i].z) && (r->racketz + 1 > ot->tab[i].z)){ //La deuxième condition dans le if permet de s'affranchir de l'obstacle dès qu'il est dépassé
+            if((r->racketx + r->width/2 > ot->tab[i].x - ot->tab[i].width/2) && (r->racketx - r->width/2 < ot->tab[i].x + ot->tab[i].width/2) && (r->rackety + r->height/2 > ot->tab[i].y - ot->tab[i].height/2) && (r->rackety - r->height/2 < ot->tab[i].y + ot->tab[i].height/2)){
+				return true;
+			}
+		}
+	}return false;
+}
+
+bool victory(Racket *r, Obstacle *boss)
+{
+    // La victoire est activée si la raquette réussi à dépasser l'écriteau de fin de partie
+	return(r->racketz < boss->z);
 }

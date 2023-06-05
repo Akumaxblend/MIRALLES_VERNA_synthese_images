@@ -10,8 +10,7 @@
 
 #define MAX_SECTION_NUMBER 20
 
-void initActors(Game *game, float speed);
-void initActors(Game *game, float speed);
+void initActors(Game *game, float speed, float racketDist);
 void testCollisions(Game *game);
 void updateLighting(Game *game, GLfloat *light_position_racket, GLfloat *light_position_ball);
 void updateRacket(Racket *racket, double RacketX, double RacketY);

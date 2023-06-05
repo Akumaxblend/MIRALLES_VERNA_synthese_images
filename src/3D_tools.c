@@ -18,7 +18,6 @@ float toRad(float deg) {
 	return deg*M_PI/180.0f;
 }
 
-
 void drawSquare() {
 	glBegin(GL_TRIANGLE_FAN);
 		glVertex3f(-0.5,-0.5,0.0);
@@ -127,4 +126,42 @@ void drawLife()
 			drawSquare();
 		glPopMatrix();
 	glPopMatrix();
+}
+
+void drawRectangle(const float scale_h, const float scale_w) 
+{
+    //draw a rectangle from a square by modifying x and y scales
+    glPushMatrix();
+        glColor3f(1,1,0);
+        glScalef(scale_h,scale_w,1.0);
+        drawSquare();
+    glPopMatrix();
+}
+
+void drawZero()
+{
+    glPushMatrix();
+        glTranslatef(-0.5,0,0);
+        drawRectangle(0.5,1.5);
+    glPopMatrix();
+    glPushMatrix();
+        glTranslatef(0.5,0,0);
+        drawRectangle(0.5,2);
+    glPopMatrix();
+    glPushMatrix();
+        glTranslatef(0,-0.5,0);
+        drawRectangle(1,0.5);
+    glPopMatrix();
+    glPushMatrix();
+        glTranslatef(0,0.5,0);
+        drawRectangle(1,0.5);
+    glPopMatrix();
+}
+
+void drawNumber(const int n)
+{
+    switch(n) {
+        case 0 :
+            
+    }
 }

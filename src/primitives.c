@@ -38,7 +38,7 @@ void drawRacket(float width, float height, double RacketX, double RacketY, float
 	glEnd();
 }
 
-void drawSection(int resolution, float width, float height, float length, float position, Ball b, Racket r)
+void drawSection(int resolution, float width, float height, float length, float position/*, Ball *b, Racket *r*/)//ça sert à rien la balle et la raquette là on est d'accord ?
 {
 	// int textX = 0;
 	// int textY = 0;
@@ -131,25 +131,25 @@ void initSection(Section * s, float w, float h, float l, float p)
 	s->position = p;
 }
 
-void initSectionsTab(SectionsTab * st, int sectionNumber)
+void initSectionsTab(SectionsTab *st /*int sectionNumber*/)
 {
-	st->sectionNumber = sectionNumber;
-	st->nb_spawned = sectionNumber;
-	for(int i = 0 ; i < sectionNumber ; i ++){
+	st->sectionNumber = 10;//on va dire que ce sera la valeur de base
+	st->nb_spawned = st->sectionNumber;
+	for(int i = 0 ; i < st->sectionNumber ; i ++){
 		Section tmp;
 		initSection(&tmp, 10, 5, 15, 30 - 15 * i);
 		st->tab[i] = tmp;
 	}
 }
 
-void drawSections(int resolution, SectionsTab st, Ball b, Racket r)
+void drawSections(int resolution, SectionsTab *st/*, Ball b, Racket r*/)
 {
-	for(int i = 0 ; i < st.sectionNumber ; i++){
-        drawSection(resolution, st.tab[i].width, st.tab[i].height, st.tab[i].length, st.tab[i].position, b, r);
+	for(int i = 0 ; i < st->sectionNumber ; i++){
+        drawSection(resolution, st->tab[i].width, st->tab[i].height, st->tab[i].length, st->tab[i].position);
 	}
 }
 
-void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz, float r)
+void initBall(Ball *b, float x, float y, float z, float vx, float vy, float vz, float r)
 {
 	b->radius = r;
 	b->x = x;
@@ -162,29 +162,29 @@ void initBall(Ball * b, float x, float y, float z, float vx, float vy, float vz,
 	b->lives = 5;
 }
 
-void drawBall(Ball b)
+void drawBall(Ball *b)
 {
 	glMatrixMode(GL_MODELVIEW);
 	GLfloat diffuse_vect[] = {0.0, 1.0, 0, 1.0};
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_vect);
 	glColor3f(1.0,0.0,1.0);
 	glPushMatrix();
-		glTranslatef(b.x, b.y, b.z);
-		glScalef(b.radius, b.radius, b.radius);
+		glTranslatef(b->x, b->y, b->z);
+		glScalef(b->radius, b->radius, b->radius);
 		drawSphere();
 	glPopMatrix();
 }
 
-void initRacket(Racket * r, float w, float h, float x, float y, float z)
+void initRacket(Racket *r, float w, float h, float z)
 {
 	r->width = w;
 	r->height = h;
-	r->racketx = x;
-	r->rackety = y;
+	r->racketx = 0;
+	r->rackety = 0;
 	r->racketz = z;
 }
 
-void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim)
+void initBonus(Bonus *b, char *type, float z, float vz, float xlim, float ylim)
 {
 	b->type = type;
 	b->z = z;
@@ -193,7 +193,7 @@ void initBonus(Bonus * b, char * type, float z, float vz, float xlim, float ylim
 	b->y = rand() % (2 * (int)ylim - 2) - ylim + 1;
 }
 
-void initObstacle(Obstacle * o, float position, float xlim, float ylim)
+void initObstacle(Obstacle *o, float position, float xlim, float ylim)
 {
 	o->height = (float)rand()/(float)(RAND_MAX/(xlim/4.0)) + ylim/4.0;
 	o->width = (float)rand()/(float)(RAND_MAX/(ylim/4.0)) + xlim/4.0;
@@ -202,7 +202,7 @@ void initObstacle(Obstacle * o, float position, float xlim, float ylim)
 	o->z = position;
 }
 
-void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float ylim)
+void initObstaclesTab(ObstaclesTab *ot, int nb, float origin, float xlim, float ylim)
 {
 	ot->nb = nb;
 	ot->nb_spawned = nb;
@@ -213,7 +213,7 @@ void initObstaclesTab(ObstaclesTab * ot, int nb,float origin, float xlim, float 
 	}
 }
 
-void drawObstacle(Obstacle o)
+void drawObstacle(Obstacle *o)
 {
 	//glDepthMask(false);
 	int textX = 0;
@@ -235,16 +235,16 @@ void drawObstacle(Obstacle o)
     glBegin(GL_POLYGON);
 		glNormal3f(0.0, 0.0, 1.0);
 		glTexCoord2f(0,0);
-		glVertex3f(o.x - o.width/2, o.y - o.height/2, o.z);
+		glVertex3f(o->x - o->width/2, o->y - o->height/2, o->z);
 		glNormal3f(0.0, 0.0, 1.0);
 		glTexCoord2f(1,0);
-		glVertex3f(o.x + o.width/2, o.y - o.height/2, o.z);
+		glVertex3f(o->x + o->width/2, o->y - o->height/2, o->z);
 		glNormal3f(0.0, 0.0, 1.0);
 		glTexCoord2f(1.0,1.0);
-		glVertex3f(o.x + o.width/2, o.y + o.height/2, o.z);
+		glVertex3f(o->x + o->width/2, o->y + o->height/2, o->z);
 		glNormal3f(0.0, 0.0, 1.0);
 		glTexCoord2f(0,1.0);
-		glVertex3f(o.x - o.width/2, o.y + o.height/2, o.z);
+		glVertex3f(o->x - o->width/2, o->y + o->height/2, o->z);
 	glEnd();
 
 	glDisable(GL_TEXTURE_2D);
@@ -254,16 +254,16 @@ void drawObstacle(Obstacle o)
 	//glDepthMask(true);
 }
 
-void drawObstacles(ObstaclesTab ot)
+void drawObstacles(ObstaclesTab *ot)
 {
-	for(int i = ot.nb-1; i>=0 ; i--){ //On dessine en décrémentant pour garder la transparence comme il faut
-        drawObstacle(ot.tab[i]);
+	for(int i = ot->nb-1; i>=0 ; i--){ //On dessine en décrémentant pour garder la transparence comme il faut
+        drawObstacle(&ot->tab[i]);
     }
 }
 
-void drawGUI(Ball b)
+void drawGUI(Ball *b)
 {
-    for(int i = 0; i< b.lives ; i++){
+    for(int i = 0; i< b->lives ; i++){
 		glPushMatrix();
 			glTranslatef(-0.8 + i*0.15, -0.5, 29);
 			glScalef(0.05,0.05,0.05);
@@ -273,25 +273,25 @@ void drawGUI(Ball b)
 	}
 }
 
-void drawBonus(Bonus b)
+void drawBonus(Bonus *b)
 {
-	if(strcmp(b.type, "life") == 0){
+	if(strcmp(b->type, "life") == 0){
 		glPushMatrix();
-			glTranslatef(b.x, b.y, b.z);
+			glTranslatef(b->x, b->y, b->z);
 			glScalef(0.3,0.3,0.3);
 			drawLife();
 		glPopMatrix();
 	}
-	else if (strcmp(b.type, "glue") == 0){
+	else if (strcmp(b->type, "glue") == 0){
 		glPushMatrix();
-			glTranslatef(b.x, b.y, b.z);
+			glTranslatef(b->x, b->y, b->z);
 			glScalef(0.15,0.15,0.15);
 			drawGlue();
 		glPopMatrix();
 	}
 }
 
-void initButton(Button *button, float x, float y, float height, float width, char * type)
+void initButton(Button *button, float x, float y, float height, float width, char *type)
 {
     button->x = x;
     button->y = y;
@@ -300,14 +300,15 @@ void initButton(Button *button, float x, float y, float height, float width, cha
     button->type = type;
 }
 
-void drawButton(Button b)
+void drawButton(Button *b)
 {
-	int textX = 0;
+    
+ 	int textX = 0;
 	int textY = 0;
 	int textN = 0;
 
 	unsigned char* loaded;
-	loaded = stbi_load(b.type,&textX, &textY, &textN, 0);// Le parametre b.type est directement un char * contenant le chemin d'accès à la texture affiché
+	loaded = stbi_load(b->type,&textX, &textY, &textN, 0);// Le parametre b.type est directement un char * contenant le chemin d'accès à la texture affiché
 	GLuint texture_walls;
 	glGenTextures(1, &texture_walls);
 	glBindTexture(GL_TEXTURE_2D, texture_walls);
@@ -317,34 +318,34 @@ void drawButton(Button b)
     glBegin(GL_POLYGON);
         glColor3f(1.0,1.0,1.0);
 		glTexCoord2f(0,1);
-        glVertex2f(b.x - b.width/2, b.y - b.height/2);
+        glVertex2f(b->x - b->width/2, b->y - b->height/2);
 		glTexCoord2f(0,0);
-        glVertex2f(b.x - b.width/2, b.y + b.height/2);
+        glVertex2f(b->x - b->width/2, b->y + b->height/2);
 		glTexCoord2f(1,0);
-        glVertex2f(b.x + b.width/2, b.y + b.height/2);
+        glVertex2f(b->x + b->width/2, b->y + b->height/2);
 		glTexCoord2f(1,1);
-        glVertex2f(b.x + b.width/2, b.y - b.height/2);
-    glEnd();
-	glDisable(GL_TEXTURE_2D);
+        glVertex2f(b->x + b->width/2, b->y - b->height/2);
+    glEnd(); 
+    glDisable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glDeleteTextures(1, &texture_walls);
 	stbi_image_free(loaded);
 }
 
-bool inButton(Button button, float x, float y)
+bool inButton(Button *button, float x, float y)
 {
-    float x_haut_gauche = button.x - button.width/2;
-    float x_haut_droite = button.x + button.width/2;
-    float y_haut_gauche = button.y + button.height/2;
-    float y_bas_gauche = button.y - button.height/2;
+    float x_haut_gauche = button->x - button->width/2;
+    float x_haut_droite = button->x + button->width/2;
+    float y_haut_gauche = button->y + button->height/2;
+    float y_bas_gauche = button->y - button->height/2;
     return x >= x_haut_gauche && x <= x_haut_droite && y <= y_haut_gauche && y >= y_bas_gauche;
 }
 
-void initMenu(Menu *menu, float width, float height, char * type)
+void initMenu(Menu *menu, float width, float height, char *type)
 {
     menu->width = width;
     menu->height = height;
-	if(strcmp(type, "debut") == 0){ //Les boutons du début de partie sont plus gros et pas disposés de la même manière que les menus de fin
+    if(strcmp(type, "debut") == 0){ //Les boutons du début de partie sont plus gros et pas disposés de la même manière que les menus de fin
 		initButton(&(menu->play),0,7,10,20,"images/jouer.jpg");
     	initButton(&(menu->quit),0,-7,10,20,"images/quitter.jpg");
 	}
@@ -355,7 +356,7 @@ void initMenu(Menu *menu, float width, float height, char * type)
     menu->type = type;
 }
 
-void drawMenu(Menu menu)
+void drawMenu(Menu *menu)
 {
 	int textX = 0;
 	int textY = 0;
@@ -363,18 +364,18 @@ void drawMenu(Menu menu)
 
     glBegin(GL_POLYGON); // La partie commune à tous les menus
         glColor3f(0.1, 0.1, 0.1);
-        glVertex2f(-menu.width/2,-menu.height/2);
-        glVertex2f(-menu.width/2,menu.height/2);
-        glVertex2f(menu.width/2,menu.height/2);
-        glVertex2f(menu.width/2,-menu.height/2);
+        glVertex2f(-menu->width/2,-menu->height/2);
+        glVertex2f(-menu->width/2,menu->height/2);
+        glVertex2f(menu->width/2,menu->height/2);
+        glVertex2f(menu->width/2,-menu->height/2);
     glEnd();
-    drawButton(menu.play);
-    drawButton(menu.quit);
+    drawButton(&menu->play);
+    drawButton(&menu->quit);
 
-	if(strcmp(menu.type, "debut") != 0){ //On ne dessine "Gagné" ou "perdu" que si il ne s'agit pas d'un menu de début de partie
+	if(strcmp(menu->type, "debut") != 0){ //On ne dessine "Gagné" ou "perdu" que si il ne s'agit pas d'un menu de début de partie
 		unsigned char* loaded;
-		if(strcmp(menu.type, "fin_victoire") == 0) loaded = stbi_load("images/gagne.jpg",&textX, &textY, &textN, 0);
-		else if(strcmp(menu.type, "fin_defaite") == 0) loaded = stbi_load("images/perdu.jpg",&textX, &textY, &textN, 0);
+		if(strcmp(menu->type, "fin_victoire") == 0) loaded = stbi_load("images/gagne.jpg",&textX, &textY, &textN, 0);
+		else if(strcmp(menu->type, "fin_defaite") == 0) loaded = stbi_load("images/perdu.jpg",&textX, &textY, &textN, 0);
 		else return;
 		GLuint texture_walls;
 		glGenTextures(1, &texture_walls);
@@ -397,10 +398,10 @@ void drawMenu(Menu menu)
 		glBindTexture(GL_TEXTURE_2D, 0);
 		glDeleteTextures(1, &texture_walls);
 		stbi_image_free(loaded);
-	}
+    }
 }
 
-void drawEnd(Obstacle * o)
+void drawEnd(Obstacle *o)
 {
 	int textX = 0;
 	int textY = 0;

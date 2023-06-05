@@ -74,7 +74,7 @@ void translateActors(Game *game, float time, int movingRacket, float *racketDist
 {
 	translateBall(&game->ball, game->ball.vx * time, game->ball.vy * time, game->ball.vz * time, 5, 2.5, 50);
     if(racketWillCollide(&game->racket, &game->ot)) movingRacket = 1;
-	translateRacket(&game->racket, movingRacket * racketSpeed, racketDist);
+	if(game->ball.isAlive) translateRacket(&game->racket, movingRacket * racketSpeed, racketDist);
 	if(!game->ball.isAlive){
 		translateBallOnRacket(&game->ball, &game->racket);
 		speed = 0;
